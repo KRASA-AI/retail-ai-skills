@@ -4,7 +4,7 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~30 min/audit"
-version: 2.0
+version: 2.1
 last_eval_score: 8.2
 ---
 
@@ -73,7 +73,16 @@ You are a retail AI readiness consultant covering storefront, catalog, structure
 
 9. **Prioritized fix-it backlog (effort × impact)** — Produce a backlog ranked by impact (estimated share of agent-originated revenue at risk) × effort (days of engineering or merchandising work). Top 5 items get a one-paragraph spec and an owner (PIM team / Eng / Merch / Legal / PSP). Everything else is named and bucketed. Include a rollback path for changes that could break non-agent SEO traffic.
 
-10. **Config-utilization checklist** — Confirm the output uses target_agent_platforms (priority order), rate_limits, parity_rules, regulated_categories, and psp from `config.yml` rather than generic placeholders.
+10. **Answer Engine Optimization (AEO) / Generative Engine Optimization (GEO) layer** — Audit the citation-and-content side of being chosen by AI search and chat surfaces (ChatGPT, Gemini, Perplexity, Claude, Microsoft Copilot, AI Overviews). Distinct from the protocol-handshake work above: this is whether assistants will *quote* the merchant when a shopper asks an unbranded buying question. Score each of the following:
+    - **`llms.txt` semantic map** — Present at site root, lists the canonical product, category, policy, and FAQ URLs an assistant should treat as source-of-truth, refreshed when the catalog changes. Note: a site-root `llms.txt` is becoming table stakes alongside `robots.txt` and `sitemap.xml`; absence is a flag, not a failure on its own.
+    - **AI-crawler allowlist** — `robots.txt` plus header-level rules explicitly allow `GPTBot`, `OAI-SearchBot`, `ClaudeBot`, `anthropic-ai`, `Google-Extended`, `PerplexityBot`, and `CCBot` for the surfaces you want cited; deny on competitive-intel surfaces (price-history pages, internal search) where appropriate. Reconcile against the rate-limit matrix from step 4.
+    - **FAQPage / HowTo / Product schema for citation** — At least one FAQPage block per product family covering top buying questions ("does it ship to X," "what is the return window," "how does sizing run"); at least one HowTo block per use-case category page. Assistants prefer cite-able structured Q&A over prose.
+    - **Answer-first content structure** — Each product / category / policy page leads with a 1–3 sentence direct answer to the page's likely query, then supports it. No burying the answer below buying-guide fluff. Assistants extract the first cite-able answer span.
+    - **Entity salience** — Brand, sub-brand, and product-line entities appear with consistent naming, are linked to canonical entity URLs (your About / brand page), and the catalog uses the same entity strings as your wider web presence (Wikipedia / Wikidata if applicable, social, marketplaces). Disambiguates the merchant from same-named competitors in assistant responses.
+    - **AEO tracker KPI** — Set a baseline for branded and unbranded citation share across at least three assistants (one ChatGPT, one Gemini / AI Overviews, one Perplexity or Claude) using a tracker (Profound, Peec, AIclicks, Hall, Gauge, or scripted query panel). Target a quarter-over-quarter lift on the categories you priced as highest-margin.
+    - **Anti-hallucination guardrail** — Confirm policy pages (returns, shipping, warranty, sizing, age-gate, jurisdiction) are crawlable and structurally distinct so the assistant cites the merchant's policy rather than inventing one. Misquoted policies generate refund-side fraud risk that the `return-fraud-image-shield` and `agentic-checkout-fraud-shield` skills then have to absorb.
+
+11. **Config-utilization checklist** — Confirm the output uses target_agent_platforms (priority order), rate_limits, parity_rules, regulated_categories, and psp from `config.yml` rather than generic placeholders.
 
 **Output requirements:**
 
@@ -84,6 +93,7 @@ You are a retail AI readiness consultant covering storefront, catalog, structure
 - **Real-time inventory / price API scorecard** with p95 latency numbers and rate-limit ceilings
 - **Prioritized fix-it backlog** (top 5 with spec + owner + rollback; full list as a ranked table)
 - **Channel-parity and regulated-category flags**
+- **AEO / GEO citation scorecard** (`llms.txt` presence, AI-crawler allowlist diff, FAQ/HowTo/Product schema coverage %, answer-first content audit, entity salience notes, baseline citation share by assistant, anti-hallucination policy-page audit)
 - **Config-utilization checklist**
 - Professional formatting appropriate for retail and e-commerce leadership + engineering
 - Correct agentic-commerce terminology (JSON-LD, Schema.org Product, ProductGroup, Offer, AggregateRating, GTIN, MAAI, delegated-purchase token, passkey, 3DS2, agent user-agent, Agent Commerce)
