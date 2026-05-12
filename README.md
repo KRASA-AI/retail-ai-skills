@@ -19,6 +19,7 @@ This repo is a complete AI toolkit for retail & e-commerce. Every skill is a sta
 | Demand Forecasting Brief | Produce a structured, accuracy-scored demand forecast for a product category or SKU set by decomposing history into level / trend / seasonality / external, picking the right method per SKU pattern, attaching confidence intervals, and tying the forecast to open-to-buy, safety-stock, and promotional decisions. | ~30 min/forecast |
 | Distributed Order Allocation | Move a multi-node retail network from a static "ship from nearest DC" routing rule to an agent-orchestrated, per-order allocation decision: for every digital order line, pick the node — DC, store, dark store, vendor drop-ship, marketplace partner, or split-shipment combination — that minimizes total landed cost, respects the customer's promised delivery window, protects store labor capacity, and reflects the merchant's carbon and brand-experience targets. | ~50 min/cycle |
 | Dynamic Pricing Strategy | Produce a per-SKU pricing move — new price, expected volume, expected margin, psychological price point, and risk flags — grounded in price-elasticity math, a markdown-cadence rubric tied to weeks-of-supply, competitor-response game theory, and MAP / UPP guardrails. | ~25 min/analysis |
+| In-Store Retail Media Inventory and Sensor-Attributed Measurement | Design and operate an in-store digital media network with AI-driven content targeting, computer vision audience analytics, programmatic ad-serving, and closed-loop sensor-attributed measurement — giving a retail operator a blueprint to turn physical store screens into a measurable, demand-partner-ready media channel that integrates with its broader retail media network. | ~120 min/network design cycle |
 | Inventory Reorder Brief | Analyze current inventory levels against sales velocity, lead times, supplier terms, landed cost (including 2026-era tariffs and duties), and seasonal patterns to produce a prioritized, PO-ready reorder recommendation with specific quantities, timing, supplier actions, an MOQ-vs-EOQ reconciliation, a landed-cost-per-unit breakdown, a payment-terms sensitivity (net 30 vs. | ~15 min/review |
 | Labor Scheduling Agent | Move a multi-store retailer from a published-once-and-pinned shift schedule to a continuous, agent-orchestrated labor-plan loop. | ~75 min/cycle |
 | Return Fraud Image Shield | Build a defensive program against AI-generated and recycled damage photos in online returns, combining metadata rules, image-authenticity signals, behavioral scoring, and computer-vision comparison against the catalog. | ~35 min/case batch |
@@ -38,7 +39,7 @@ This repo is a complete AI toolkit for retail & e-commerce. Every skill is a sta
 | Meeting Summarizer | Summarize meeting notes into action items, decisions, and follow-ups. | ~10 min/use |
 | Review Responder | Craft professional responses to online reviews — both positive and negative. | ~10 min/use |
 
-**Total time saved per use: ~847+ minutes across all skills.**
+**Total time saved per use: ~967+ minutes across all skills.**
 
 ## Quick Start
 
