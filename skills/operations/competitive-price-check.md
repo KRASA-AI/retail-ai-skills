@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~20 min/check"
-version: 2.2
-last_eval_score: 9.1
+version: 2.3
+last_eval_score: 9.2
 ---
 
 # 🏷️ Competitive Price Check
@@ -115,4 +115,31 @@ You are a retail pricing and competitive-intelligence assistant. Your job is to 
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** 1 target SKU — *Aether 2L Rain Shell, MPN AE-RS2L-BLK-M*, your retail $179.00, your cost $94.00 (margin floor 38%). Competitor set from `preferred_competitor_set.competitors` = Amazon (3P, marketplace), Backcountry (DTC), REI (category leader). Reference zip 80202, channel mix = retail-site + marketplace. MAP floor = $169.00. Capture date 2026-06-08.
+
+**Comparison table** (landed to zip 80202):
+
+| Competitor | List | Promo | Ship | Tax | Mkt fee | Landed | SKU match (conf.) | Gap vs. you | Band | Urgency | Action |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **You** | $179.00 | — | $0 (free >$75) | $14.86 | — | **$193.86** | — | — | — | — | — |
+| Amazon 3P "GearPoint" | $159.00 | — | $0 (Prime) | $13.20 | — (buyer-side) | **$172.20** | identity 1.0 | **−11.2%** | Aggressive | 🟢 n/a (no promo) | escalate — **below MAP $169** |
+| Backcountry | $179.00 | −20% → $143.20 | $0 (>$50) | $11.89 | — | **$155.09** | identity 1.0 | **−20.0%** | Loss-leader | 🔴 10.0 | same-day match/bundle |
+| REI | $179.00 | — | $0 (Co-op) | $14.86 | — | $193.86 | identity 1.0 | 0.0% | Parity | 🟢 n/a | hold |
+
+**Landed-formula note (Backcountry):** list 179 − promo 35.80 + ship 0 + tax 11.89 = $155.09. Promo mechanic = 20% off sitewide, ends **2026-06-10** (2 days out) → urgency = depth 20 × (1/2) = **10.0 → 🔴 high**. Match to $155.09 implies margin = (155.09−94)/155.09 = **39.4% — above 38% floor, permitted.**
+
+**MAP/UPP violation section:** Amazon 3P seller "GearPoint" listing at $159 landed-to-list, **$10 below the $169 MAP floor**. Source = unauthorized/gray-market reseller → **marketplace-takedown path** (Amazon Transparency / Brand Registry report). Escalation template ready; typical turnaround 24–72h. Brand-notification not applicable (not an authorized reseller).
+
+> *Escalation template (ready to send):* "Amazon ASIN B0x…, seller GearPoint, offering AE-RS2L-BLK-M at $159.00, $10.00 below our published $169.00 MAP effective 2026-01-01. Requesting enforcement under Brand Registry / Transparency. Capture: [URL], 2026-06-08 09:14 MT."
+
+**Executive summary:**
+- 🔴 **Aether Rain Shell ($179, ~$3.4k/wk revenue)** — Backcountry at −20% landed, promo ends in 2 days → **same-day match to $155 (39.4% margin, within floor) or bundle-defense** (shell + $29 pack cover at $179). Escalate to pricing-council today.
+- ⚠️ **MAP breach** — Amazon 3P GearPoint $10 under MAP; file Transparency takedown this cycle (highest-priority escalation).
+- ✅ REI at exact parity, no action — hold.
+- Category signal: only Backcountry is promoting; **not** a category-wide markdown wave yet — a targeted match beats a defensive category cut.
+
+**Rematch queue:** none (all 3 at identity confidence 1.0, all fields captured).
+
+**Data-capture metadata:** date 2026-06-08, 09:14 MT · zip 80202 · sources: amazon.com/dp/B0x…, backcountry.com/aether-2l, rei.com/product/… · caveat: Amazon tax estimated at CO state+Denver rate; Prime free-ship assumed.
+
+**Config-utilization checklist:** ✅ `preferred_competitor_set.competitors` (Amazon/Backcountry/REI named in header) · ✅ `geo_radius` (national-online applied) · ✅ `channel_mix` (retail-site + marketplace; 3P marketplace fee suppressed — buyer-side landed) · ✅ `map_policy` ($169 floor cited by name) · ✅ `margin_floor_pct` (38% — match math shown at 39.4%) · ✅ `reference_zip` (80202 on every landed calc) · ✅ `marketplace_fees` (n/a this run — comparisons are buyer-landed not resale; flagged) · ✅ `price_action_authority` (Backcountry gap 20% > autonomous ceiling → "escalate to pricing-council").

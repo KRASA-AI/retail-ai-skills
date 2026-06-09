@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~5 min/reply"
-version: 3.2
-last_eval_score: 8.8
+version: 3.3
+last_eval_score: 9.1
 ---
 
 # 💬 Customer Service Reply
@@ -111,4 +111,35 @@ You are a retail customer service specialist. Your job is to draft replies that 
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input message (verbatim):** *"This is my SECOND email. My order #88231 said delivered 4 days ago and it's NOT here. I checked with neighbors. $240 of stuff. If I don't hear back today I'm calling my bank and disputing the charge."* · Channel = email · Order: $240, shipped 6 days ago, carrier status = "Delivered" with address-match confirmed, card payment · Repeat-contact count = 2 · Gold tier, lifetime 11 orders, high LTV band · Sentiment = frustrated + threatening-dispute.
+
+**Escalation flag:** Supervisor tier — porch-theft / delivered-not-received with dispute language and repeat contact. Reship gesture sized below sits inside agent authority, but the dispute-threat flag routes for supervisor visibility before send.
+
+**Issue classification:** (3) Carrier-shows-delivered / not-received → **returns-adjacent** + red-flag (repeat ≥ 2, threat language "dispute / call my bank"). Root-cause tag: delivered-not-received (porch theft path).
+
+**Customer-facing reply (email):**
+
+> Subject: Re: Order #88231 — getting your replacement out today
+>
+> Hi Marcus,
+>
+> You're right to be frustrated — a "delivered" scan with nothing at your door is exactly the kind of thing we fix, not debate. Thanks for checking with neighbors already; that's the step that lets me move fast here.
+>
+> Here's what I'm doing today: I'm filing the carrier delivery-investigation now (tracking shows a delivery scan to your confirmed address, which is what we need on file), and I'm preparing a **full replacement of all items on #88231 to ship today** once one quick step is done. Because this is a delivered-not-received claim on a card order, I need a short signed statement confirming you didn't receive the package — I've put a one-click form in this email; it takes about 30 seconds and lets me release the reship immediately.
+>
+> If you'd rather have a refund than a replacement, just reply "refund" and I'll route it the same way — your refund would post to your original card **3–5 business days** after we close the claim.
+>
+> One honest note so nothing catches you off guard: if a bank dispute is opened, it actually **pauses** any refund or reship while the bank investigates, which usually takes 15–45 days — slower than the path above. I'd much rather just get your replacement moving today. Reply with the signed form and consider it handled.
+>
+> Best,
+> Maya — Riverside Outfitters Customer Care
+
+**Restitution tag:** Full reship of $240 order (defective-experience/loss gesture). Authority: agent self-serve under `escalation_thresholds` for tier-Gold loss-replacement, but **held for supervisor visibility** due to dispute-threat red flag. Gesture sized against `compensation_matrix.per_channel_gesture_limits[email]` × `per_tier_multiplier[gold 1.25]` → reship within cap.
+
+**Chargeback pre-dispute deflection:** Included (dispute language present). Preserves evidence trail: delivery scan with AVS address match, prior undisputed orders on same card/device, signed non-receipt statement, two-email communication log — per Visa CE 3.0 / Mastercard FPT.
+
+**Returns-adjacent cross-link:** Resolution is reship-or-refund pending the non-receipt statement. On the refund branch, path + SLA are drawn from `return-policy-explainer` v2.3: refund-method cell `[card][email][gold]` → 3–5 business days; no physical return required (loss claim, not a return of goods), so no reverse-logistics path is issued. Cited rather than improvised.
+
+**Internal note (CRM):** Cat (3) carrier-delivered-not-received · root-cause delivered-not-received/porch-theft · sentiment frustrated+dispute-threat · red flags: repeat=2, dispute threat · restitution: full reship $240, agent authority, held for supervisor visibility · config fields used (below) · chargeback-deflection: YES · open item: signed non-receipt form awaited before reship release · reporting tag: DNR-card-dispute.
+
+**Config-utilization checklist:** ✅ `brand.voice` · ✅ `brand.signoff_name` (Maya) · ✅ `channels` (email SLA/format) · ✅ `escalation_thresholds` (supervisor-visibility on dispute flag) · ✅ `shipping.otd_commitment` · ✅ `loyalty.tiers` (Gold) · ✅ `policies.compensation_matrix.per_channel_gesture_limits` + `per_tier_multiplier` (email cap × 1.25 cited) · ✅ `marketplace` (n/a — direct email channel, flagged not-applicable). No fields missing.

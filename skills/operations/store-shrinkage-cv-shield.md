@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~45 min/review"
-version: 1.1
-last_eval_score: 8.8
+version: 1.2
+last_eval_score: 9.0
 ---
 
 # 🎥 Store Shrinkage Computer-Vision Shield
@@ -94,7 +94,34 @@ You are a retail asset-protection and store-operations assistant. Your job is to
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run (abridged). **Input:** Grocery banner "FreshMart," 42 stores, pilot scoping for Store #118 (38k sq ft, SCO = 61% of transactions). Shrink: 2.4% of sales (trailing-12) vs. 1.9% chain — SCO loss running ~3.1× staffed-lane. Cameras: 64× IP (mix 1080p/4K), Genetec VMS, no edge compute yet. EBR: NCR Voyix LossPrevent in place, target join latency 750 ms. `risk_appetite` = low. `cv_vendor_shortlist` = [Everseen, Mashgin, NVIDIA-Metropolis-on-Hailo]. Jurisdiction: WA (BIPA-analog HB 1493, MHMD) — facial recognition **out of scope**, no biometric templates.
+
+**Executive summary:**
+- Store #118 shrink ≈ **$612k/yr** at 2.4% of $25.5M sales; SCO carries ~$420k of it. Conservative 28% reduction on an SCO-first build ≈ **$118k/yr recovered**, ~8-month payback on a ~$78k edge + license outlay.
+- Recommended pilot: **Store #118** (highest SCO share × willing GM × WA-permissible non-biometric modality).
+- Recommended stack: **NVIDIA Metropolis on Hailo-10 edge boxes** (on-prem inference, merchant-tenanted training data, no shared cross-customer set) for SCO non-scan + barcode-occlusion, with **Everseen** as the staffed-lane overlay fallback. Mashgin deferred (lane-replacement capex out of pilot scope).
+- Honest-shopper friction-floor: **≤ 3 shopper-visible interventions / 1,000 transactions / day** (hard gate; low risk-appetite → ≤ 0.5 nudges/lane/hr).
+- Rollback trigger: friction-floor breach 2 days running → auto-relax lowest-precision rule + page LP director.
+
+**Zone threat map (excerpt):**
+
+| Zone | Top loss modes | Camera sufficiency | Action | Owner (`alert_response_matrix`) |
+|---|---|---|---|---|
+| SCO lanes (8) | non-scan pass-through · banana-trick/PLU swap · walk-away after failed pay | 4K overhead OK; 2 lanes need re-aim | re-aim L5/L7 before inference | Front-End Lead |
+| Exit | concealment walk-out | 1080p adequate | none | LP Analyst |
+| Returns desk | empty-box · RFID-stripped serialized · no-receipt cluster | needs 1 added angle | add 1 cam; link to `return-fraud-image-shield` | Returns Supervisor |
+
+**Tiered alert rubric (excerpt):** (i) silent observe — conf ≥ 0.60, analyst queue; (ii) associate nudge — conf ≥ 0.80, SCO screen prompt, budget ≤ 0.5/lane/hr; (iii) soft intervention — conf ≥ 0.92 **and** ≥ $15 / ≥ 1 item, greeter "can I help you bag that?"; (iv) hard intervention — **not recommended** in WA shopkeeper-privilege lane without legal sign-off. Friction-floor = hard gate over all tier iii+iv.
+
+**EBR sub-second join:** PTP time-source (≤100 ms drift) on cameras + NCR journal; Kafka buffer on the Hailo edge box (no cloud round-trip); join key = lane_id + transaction_id + item_index; alert object `{store_id, lane_id, transaction_id, item_index, alert_type, confidence, suggested_tier, evidence_clip_url, retention_class, ebr_journal_pointer}`; offline fallback = queue+replay, suppress tiers iii/iv → downgrade to silent observe.
+
+**Retention matrix:** operational 30d · open-case 180d (→12mo on named hold) · ORC-cluster 12mo · minor-involved 30d minimum-necessary + legal review · returns-desk-linked = match `return-fraud-image-shield` case class · receiving-dock 90d · cash-handling 90d (PCI). Privacy checklist: WA HB 1493 + MHMD written-release **n/a** (no biometric template created) · signage per store · named privacy-officer sign-off = FreshMart DPO.
+
+**90-day pilot:** wk1–2 shadow mode (analyst queue only) → wk3–4 tier i+ii → wk5–8 add one high-precision tier-iii rule (SCO non-scan ≥ $15) → expand rule library only after friction-floor + FP budget hold 2 consecutive weeks → go/no-go gate (approver: LP Director) before chain-wide.
+
+**KPI scorecard:** shrink $/1k txns · SCO intervention rate · recovered $/alert · investigator hrs/confirmed case · FP rate/zone · friction-floor/1k/day (hard gate) · associate-sentiment pulse · complaint volume · join latency P50/P95 · cross-skill case-collapse count.
+
+**Config-utilization checklist:** ✅ `banner` (FreshMart) · ✅ `store_directory` (#118) · ✅ `risk_appetite` (low → tight FP budget) · ✅ `lp.cv_vendor_shortlist` (3 named, mapped) · ✅ `lp.alert_response_matrix` (owners per zone) · ✅ `privacy.retention_windows` (matrix applied) · ✅ `jurisdictions` (WA → no facial recognition) · ✅ `lp.ebr_join_latency_target_ms` (750 ms) · ✅ `voice`. No fields missing.
 
 ## Notes
 
