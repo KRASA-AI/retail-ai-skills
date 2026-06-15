@@ -66,6 +66,22 @@ Real-time inventory visibility, customer context, and next-best-action delivered
 
 ---
 
+## Append: 2026-06-15 landscape monitor update
+
+*Added by the 2026-06-15 monitor run (window: 2026-06-08 → 2026-06-15, plus early-June vendor signals not captured in the 2026-06-08 log). No skill cleared the new-skill/version-bump gate this cycle; these are grounding updates only.*
+
+**§3 governance — agent-traffic majority crossover and blocklist expansion.** Cloudflare Radar data shared publicly on June 3, 2026 put automated (bot) traffic at roughly 57.5% of HTML web requests versus ~42.5% human — reported as the first time automated requests held the majority. In parallel, Amazon broadened its `robots.txt` blocklist to dozens of agents (publicly characterized as ~47, reportedly adding Google, Meta, and Huawei crawlers) while continuing to invest in its own first-party assistant surface, and a June 2026 legal-industry analysis ("Agent Provocateur," Ballard Spahr) framed the disguised-scraper-vs-verified-agent distinction as an emerging liability question for both retailers and agent operators. Net effect for the skills: reinforces the block-vs-allow-vs-verify framing already in `agentic-commerce-readiness` (robots-directives / structured-data / allowlist) and the identity-bound-checkout posture in `agentic-checkout-fraud-shield`. The bot-majority crossover is a watch-trigger for the `agent-access-governance-policy` pipeline candidate (see monitor pipeline notes) — when a *published merchant-deliverable policy template* (legal + ad-ops + ops sign-off) becomes a distinct artifact, revisit the skill candidate.
+
+**§4 catalog/product-data tooling — single-product-record data services.** NielsenIQ launched **NIQ Product Intelligence** (announced June 2, 2026), a service that standardizes attributes, resolves product identity across systems, and enriches product data so AI systems can match/recommend/surface products; a follow-on **GDSN capability** extends it toward a single product record spanning supply-chain and agentic-commerce ecosystems (built on NIQ's catalog of 200M+ unique items and billions of maintained attributes). This is a *data-vendor* complement to the merchant-side content shape already covered by `product-description-writer` (Google Conversational Attributes feed promotion) and the catalog-endpoint readiness in `agentic-commerce-readiness` (UCP Catalog). Single vendor in its data-standardization niche; no skill gate met. Concept to carry: "machine-readable, identity-resolved product records" as the upstream feedstock for both the conversational-attributes feed and the UCP Catalog endpoint.
+
+**§2 protocols/rails — regional checkout expansion and payment-network maturation.** Hey Savi + PayPal launched what they describe as the UK's first end-to-end agentic-commerce platform with in-app checkout (announced June 2, 2026), with Debenhams Group brands as the first UK retail adopter — a regional-availability data point for the ACP/checkout layer already covered by `agentic-commerce-readiness`, not a new protocol. On the network side, Mastercard published a Level 3 ("advanced programmatic checkout") agentic-commerce developer guide, Intelligent Commerce Connect (shipped April 8, 2026) accepts agents across Visa TAP, Mastercard MPP, ACP, and UCP simultaneously, and x402 V2 (May 2026) added Batch Settlement — all maturation of rails the skill already names, no version bump warranted.
+
+**Personalization context.** Nayax launched AI product-discovery/personalization (visual + text search, cross-channel recommendations) for its merchant base on June 1, 2026 — single-vendor; conceptually absorbed by `personalization-strategy`. Logged for completeness, no action.
+
+**GitHub / prompt-library sweep.** Generic multi-industry agent catalogs (e.g., "awesome-ai-agents-2026" lists) and prompt packs only; no retail-specific workflow or technique not already covered. Nothing extracted (no anti-plagiarism exposure).
+
+---
+
 ## Maintenance note
 
 Append future cycles' ecosystem notes to this file (or open a dated sibling, e.g. `landscape-2026-07.md`) rather than re-deferring to "next cycle." When a pipeline candidate graduates to a skill, move its entry's emphasis from "vendor map" to a cross-link to the new skill file.
