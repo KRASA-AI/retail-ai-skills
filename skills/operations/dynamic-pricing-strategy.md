@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~25 min/analysis"
-version: 2.1
-last_eval_score: 8.0
+version: 2.2
+last_eval_score: 9.2
 ---
 
 # 💲 Dynamic Pricing Strategy
@@ -75,4 +75,35 @@ You are a retail pricing strategist. Your job is to recommend a price per SKU wi
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** one aged SKU — *Trailhead Merino Base-Layer Crew, Charcoal / M* (own brand, no MAP). Current retail **$78.00**, landed cost **$34.00** → margin **$44.00 (56.4%)**. Trailing velocity **60 units/wk**, on-hand **720**, age-on-shelf **13 weeks**. **Objective: inventory clearance.** Channels: DTC + marketplace, held in parity. Config: `margin_floor_pct` 38%, `markdown_cadence` −15%@8wk / −25%@12wk / −40%@16wk / clear@20wk, `psychological_pricing_preferences` end-in-.99, `price_floor_authority` merchandiser ≤15% / dept-head ≤30% / pricing-council >30%, `competitor_response_lag` apparel-basics 7 days.
+
+**Situational analysis:** WOS = 720 ÷ 60 = **12.0 weeks**; age-on-shelf 13 wks is **past the −25% @ 12-week ladder rung**. Positioning: own-brand basic, no exact competitor SKU. Margin healthy (56.4%) but inventory is aging — this is a cadence-driven clearance move, not a competitive one.
+
+**Elasticity evidence:** no direct prior move on this SKU → **category proxy**, apparel basics **PED = −1.4** (range −1.2 to −1.6). Confidence: medium. Not flagged test-and-learn (proxy is well-anchored for basics).
+
+**Strategy selected:** **Markdown ladder** — the 13-week age trips the −25% rung. Charm-price to end-in-.99 per config: $78.00 × 0.75 = $58.50 → **$57.99** (effective depth −25.65%).
+
+**Per-SKU recommendation line:**
+> **$78.00 → $57.99 (−25.65%) | expected units: 82/wk (was 60, at PED −1.4) | expected margin $: $23.99/unit (41.4%) | expected WOS: 8.8 wk (was 12.0) | authority: dept-head sign-off | risk: none binding (margin 41.4% > 38% floor; MAP n/a)**
+
+Math: new units = 60 × (1 + (−1.4 × −0.2565)) = 60 × 1.359 = **81.5 → ~82/wk**. Margin/unit = $57.99 − $34.00 = **$23.99**. WOS = 720 ÷ 82 = **8.8 wk**.
+
+**Scenario grid** (ladder-aligned rather than the default −5/−15, because this SKU is in clearance past the 12-wk rung):
+
+| Scenario | Price | %Δ | Units/wk | Rev/wk | Margin/wk | WOS | Authority |
+|---|---|---|---|---|---|---|---|
+| Conservative (−15% rung) | $65.99 | −15.4% | 73 | $4,813 | $2,333 | 9.9 | merchandiser (autonomous) |
+| **Recommended (−25% rung)** | **$57.99** | **−25.7%** | **82** | **$4,729** | **$1,956** | **8.8** | **dept-head sign-off** |
+| Aggressive (−40% rung) | $46.99 | −39.8% | 93 | $4,389 | $1,213 | 7.7 | pricing-council + **margin-floor BREACH** |
+
+Read: the −40% rung clears only ~1.1 weeks faster than the recommended rung but sheds ~$743/wk of margin **and** drops margin to 27.6% (below the 38% floor) — premature. The −15% rung protects the most margin but leaves WOS at 9.9, still slow for a clearance objective. The **−25% rung is the right rung**: it pulls WOS under 9 weeks while holding margin at 41.4%.
+
+**Markdown-ladder table:** −15% @ 8wk → $65.99 · **−25% @ 12wk → $57.99 (current trigger)** · −40% @ 16wk → $46.99 · clear @ 20wk. Next rung fires in ~3 weeks if sell-through stalls.
+
+**Competitor-response note:** own-brand basic with no apples-to-apples competitor SKU → match probability **low**. `competitor_response_lag` (apparel-basics, 7 days) is moot here; no headline match expected. Escape hatch if a private-label rival reacts: loyalty-gated price (members-only −25%) preserves the public $78 reference for non-members.
+
+**Risk & compliance flags:** margin-floor ✅ (41.4% > 38%) · MAP/UPP ✅ (own brand, n/a) · FTC was/now ✅ ($78 held > 30 days, genuine reference) · channel-parity ✅ (apply to DTC + marketplace together). Aggressive scenario only: ✗ margin-floor breach — do not execute without pricing-council.
+
+**Rollback trigger:** revert to $65.99 if sell-through < **1.2× baseline (< 72 units/wk)** after 14 days. Expected 82/wk leaves headroom; a reading under 72 means the elasticity proxy was too high for this SKU.
+
+**Config-utilization checklist:** ✅ `margin_floor_pct` (38% gate applied) · ✅ `map_policy` (own brand → n/a, flagged) · ✅ `markdown_cadence` (−25% @ 12wk rung) · ✅ `psychological_pricing_preferences` (.99 → $57.99) · ✅ `channel_parity_rules` (DTC + marketplace parity) · ✅ `price_floor_authority` (−25.65% → dept-head cell; −40% → pricing-council cell) · ✅ `competitor_response_lag` (apparel 7d cell) · ✅ `brand.voice`. No fields missing.
