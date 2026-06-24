@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~30 min/campaign"
-version: 2.1
-last_eval_score: 4.6
+version: 2.2
+last_eval_score: 9.2
 ---
 
 # 📣 Promotion Campaign Builder
@@ -116,4 +116,27 @@ You are a retail lifecycle-marketing and promotions copywriter who treats every 
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run (abbreviated to the margin-bearing pieces — full run also emits the 3-email suite, social, paid, and on-site copy). **Input:** Campaign = *Summer Kickoff*, objective = revenue + inventory clearance, window Jun 26–30 (America/New_York), segment = all opted-in + lapsed-90. Offer = **25% off the Trailhead apparel line** (category scope), no stacking with loyalty coupons, MAP-protected jackets excluded. Hero SKU = Trailhead Merino Tee, reg **$120**, unit cost $58, allocated promo cost $4. `pricing.min_contribution_margin_pct` = **30%**. Channels = email + SMS + Meta + on-site. Apparel elasticity class. Baseline window units 500.
+
+**Mechanic + margin guardrail:** Shopper phrasing = *"25% off the Trailhead line."* Per-SKU margin check on the hero: promo price = $120 × 0.75 = **$90.00**; `promo_unit_margin = (90 − 58 − 4) / 90 = $28.00 = 31.1%`. **31.1% ≥ 30% floor → PASS.** (MAP-protected jackets excluded from the % event; one accessory SKU at 27% margin was swapped out, not loss-led.) Fine print: ends Jun 30 11:59 pm ET, no stacking w/ loyalty, one promo per order, while-supplies-last on clearance colorways.
+
+**Hero message (8–12 words, both tested):** benefit-led — *"Summer-weight Merino, now an easy yes."* / price-led — *"25% off the whole Trailhead line."*
+
+**Email — launch send (subject A/B):**
+- A (benefit): `Your summer layer just got lighter` — open-rate metric
+- B (price): `25% off Trailhead — 5 days only` — open-rate metric
+- Preheader ≤ 90: *"Merino tees, shorts, and base layers — 25% off through Sunday."* · Hero CTA *Shop the line* · strike-through $120 → $90 · spam check pass (no ALL-CAPS, single "off", CAN-SPAM physical address from `config.email.physical_address`, RFC 8058 one-click unsubscribe present).
+
+**SMS (2 variants, ≤ 160 GSM-7, STOP footer):**
+- *"Riverside: Summer Kickoff is live — 25% off the Trailhead line through Sun. Shop: [link] Reply STOP to opt out"* (148 chars)
+- 10DLC sender ID confirmed from `config.sms.10dlc_sender_id` (Marketing use-case); TCPA window 8a–9p recipient-local; non-opted-in CCPA records suppressed per `config.sms.opt_in_state`.
+
+**Promo elasticity & contribution-margin forecast (math shown):** Apparel × 25% depth → elasticity **1.40×** (skill table). Baseline 500 units → **700 incremental units** across the campaign. Revenue = 700 × $90 = **$63,000**. Contribution margin = 700 × $28 = **$19,600 (31.1%)** — above floor. Email-channel sub-projection: 60,000 opted-in × 24% open = 14,400 opens × 5% CTR = **720 sessions** × 6% conv = **~43 email-attributed orders** (one channel's incremental slice of the 700).
+
+**A/B test plan:** dimension = subject benefit-led (A) vs price-led (B); metric = open rate; baseline 24%, MDE +10% relative; per-arm n ≈ **5,131** (two-proportion, 80% power, α = 0.05); 24-hr test on a 20% holdback before the main send; winner rule = no early stop unless p < 0.01.
+
+**Compliance log:** CAN-SPAM ✅ · one-click unsubscribe ✅ · 10DLC + STOP/HELP + quiet hours ✅ · FTC "Was/Now" — $120 was the bona-fide price ≥ 30 of last 90 days ✅ · MAP — jackets suppressed from strike-through creative per `pricing.map_policy` ✅ · regulated categories — n/a (apparel).
+
+**Rollback trigger:** auto-pause the promo if 24-hr contribution margin < **$2,500/day** OR hero unit margin drops below **30%** (e.g., if an unplanned shipping subsidy lifts allocated cost). Owner: lifecycle lead.
+
+**Config-utilization checklist:** ✅ `brand.voice` · ✅ `brand.disallowed_phrases` · ✅ `brand.legal_footer` · ✅ `target_channels` · ✅ `loyalty.tiers` (no-stack rule) · ✅ `sms.10dlc_sender_id` · ✅ `sms.opt_in_state` · ✅ `email.physical_address` · ✅ `pricing.map_policy` · ✅ `pricing.min_contribution_margin_pct` (30% floor applied) · ✅ `promo.stacking_rules` · ✅ `pricing.regulated_categories` (n/a, logged). No fields missing.

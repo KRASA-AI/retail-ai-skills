@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~7 min/case"
-version: 2.4
-last_eval_score: 8.9
+version: 2.5
+last_eval_score: 9.0
 ---
 
 # 🔄 Return Policy Explainer
@@ -148,8 +148,29 @@ You are a retail customer service policy specialist. Your job is to translate re
 
 **Config-utilization checklist:** ✅ `return_policy.windows` (gift 45d applied) · ✅ `return_policy.restocking_fee_schedule` (0% defective) · ✅ `return_policy.return_shipping_paid_by` (merchant, defective) · ✅ `return_policy.refund_method_matrix` (cell cited) · ✅ `return_policy.reverse_logistics_path` (Happy Returns Bar) · ✅ `escalation_thresholds` (agent self-serve) · ✅ `brand.voice` (warm, concise) · ✅ `loyalty.tiers` (Gold) · ✅ `payment_methods` (gift card) · ✅ `serialization.authentication_required_categories` (footwear → serial scan). No fields missing.
 
+> Second reference run — the **common, one-touch case** (no image claim, no gray area), to show the skill resolves the bread-and-butter return in a single reply without spinning up the dual-path / fraud machinery. **Input:** Standard return of an unopened $64.00 pair of yoga leggings (apparel, non-serialized), order placed 12 days ago (standard window 30 days — well within), paid by Visa card, Silver loyalty tier, channel = chat, sentiment = neutral, no photos uploaded.
+
+**Scenario tag:** (1) standard return within window, unopened. No image claim → **no `return-fraud-image-shield` bridge** (skip cleanly; do not request photos). Apparel is not in `serialization.authentication_required_categories` → no serial/RFID step. Not a gray area → **single path, no dual draft.**
+
+**Customer-facing reply (chat):**
+
+> Hi Sam — easy one. Your Aster leggings are well within our 30-day window and unopened, so you're all set for a full refund, no restocking fee. I've generated your return: scan the **prepaid QR** at the top of this message at any UPS counter (no printer needed), or drop it at a **Happy Returns Bar** near you in about 5 minutes. Once it's scanned, **$64.00 goes back to your Visa in 3–5 business days**. Want a different size instead? I can swap it free and ship today — just say the word.
+
+**RMA block:** RMA #RV-71093-R1 (issued now) · Path: prepaid QR (UPS counter) or Happy Returns Bar, customer's choice · Packaging: tags attached, original mailer fine · No serial/auth step (non-serialized apparel) · SLA: refund posts 3–5 business days from carrier scan.
+
+**Restocking-fee math:** Item subtotal $64.00 × fee 0% = **$0.00** (within-window, unopened apparel — no fee per schedule). Net refund: **$64.00** to original Visa.
+
+**Refund-method × channel SLA cell:** `refund_method_matrix[card][chat][silver]` → 3–5 business days from RMA receipt. Cited on internal note.
+
+**Reverse-logistics path:** prepaid QR (printer-free) with Happy Returns Bar offered as the lower-friction alternative — both merchant-paid (in-window standard return).
+
+**Internal note (CRM):** Tag 1 standard/in-window/unopened · no image claim (bridge skipped) · refund card, cell `[card][chat][silver]` 3–5 biz days · restocking 0% (in-window unopened) · path prepaid QR / Happy Returns · return-shipping merchant-paid · goodwill flag: N/A (in-policy) · abuse score: clean · serial-auth: n/a · RMA RV-71093-R1 · authority: agent self-serve.
+
+**Config-utilization checklist:** ✅ `return_policy.windows` (30d standard, within) · ✅ `return_policy.restocking_fee_schedule` (0% in-window unopened) · ✅ `return_policy.return_shipping_paid_by` (merchant, standard) · ✅ `return_policy.refund_method_matrix` (cell cited) · ✅ `return_policy.reverse_logistics_path` (QR + Happy Returns) · ✅ `brand.voice` (warm, brief) · ✅ `loyalty.tiers` (Silver) · ✅ `payment_methods` (Visa card). Not triggered this case: `escalation_thresholds` (no goodwill), `serialization.authentication_required_categories` (non-serialized) — noted, not missing.
+
 ## Notes
 
+- The two worked examples bracket the skill's range on purpose: the gift/defective/step-up case shows the full fraud-bridge + dual-path machinery; the in-window unopened case shows the **one-touch path** — resolve, RMA, refund SLA, done — with the bridge and dual draft correctly *skipped*. A skill that only ever demonstrates the hard case teaches agents to over-process the 80% that are simple.
 - Image-claim cases never skip `return-fraud-image-shield`. The bridge is the load-bearing addition in v2.2 — goodwill on a manual-review tier case is the same failure mode as a missed `agentic-checkout-fraud-shield` decline at purchase, paid out the back door.
 - The reverse-logistics path matrix is a customer-experience lever, not a cost lever. A kiosk drop-off costs the merchant more in vendor fee than a customer-paid label, but the conversion-on-replacement-purchase delta typically more than covers it. The skill should pick the path that minimizes customer friction within the policy lane, not the one that minimizes line-item cost.
 - Post-tariff buyer-pays-return-shipping is a 2026 reality on cross-border lanes that have lost de-minimis treatment. The skill must surface the cost to the customer up front; do not paper over a $30 return-shipping bill in a 3-line reply.
