@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~50 min/planogram"
-version: 2.0
-last_eval_score: 8.6
+version: 2.1
+last_eval_score: 9.2
 ---
 
 # 🛍️ Visual Merchandising Planogram Brief
@@ -109,4 +109,47 @@ You are a retail category management and visual-merchandising assistant. Your jo
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** Big-box grocery salty-snacks gondola. **24 linear ft, 5 shelves**, gondola fixture, shopper mission = stock-up + impulse, right-turn racetrack adjacency. Four sub-categories with trailing-13-week revenue and gross-margin $. ESL provider = SES-imagotag; in-store retail-media screen = Cooler Screens slot on the adjacent cold-vault end-cap. AI shelf-scan vendor = Simbe Tally. Vendor contract: national potato-chip brand JBP mandates **5 facings** on its hero SKU. Private-label BFY share target = 18% of bay linear.
+
+**Bay header:** Big-box grocery · gondola · 24 LF · 5 shelves · mission = stock-up + impulse · right-turn racetrack.
+
+**Space-to-sales table** (flag when |linear − revenue| or |linear − margin| > 5pp)
+
+| Sub-category | Linear % | Revenue % | Margin % | Δ vs rev | Δ vs margin | Flag |
+|---|---|---|---|---|---|---|
+| Potato Chips | 41.7 | 45.7 | 41.6 | −4.0 | +0.1 | — |
+| Tortilla Chips | 25.0 | 30.4 | 32.3 | **−5.4** | **−7.3** | **GROW** (linear < revenue & margin) |
+| Pretzels | 16.7 | 9.8 | 8.9 | **+6.9** | **+7.8** | **SHRINK/CULL** (over-spaced) |
+| Better-for-you | 16.7 | 14.1 | 17.2 | −2.6 | +0.5 | — |
+
+Bay totals: 24 LF · $92,000 rev · $30,300 margin · **sales-per-LF $3,833 (13-wk)**. **Action: move ~2 LF from Pretzels → Tortilla Chips.**
+
+**GMROF ranking** (margin $ ÷ linear ft): Tortilla **$1,633/ft** › Better-for-you **$1,300/ft** › Potato **$1,260/ft** › Pretzels **$675/ft**. → Tortilla earns its space hardest (bull's-eye candidate); **Pretzels is the bay's depth-down candidate** (below 25th-pctile, corroborates the space-to-sales SHRINK flag).
+
+**Facings formula trail** (hero Tortilla SKU): weekly velocity 84, replenishment cycle 3 days, units-per-facing 12, case pack 24, vendor-mandated 2.
+```
+min_facings   = ceil((84 × 3 ÷ 7) ÷ 12) = ceil(36 ÷ 12) = 3
+pack_out_mult = ceil(24 ÷ 12)            = 2
+recommended   = max(3, 2, 2)             = 3 facings
+```
+Hold-quantity between replenishments = 36 units; 3 facings × 12 = 36 → fits a clean restock without a case-break in the aisle.
+
+**Adjacency / CDH rationale:** CDH = need → category → benefit → brand → pack → variant. Bay uses a **benefit block** (kettle/regular/baked → flavor) over a brand block: shopper's first decision here is texture/health benefit, not brand (snacks are not a destination-brand category). Cross-merchandise **tortilla chips ↔ salsa** (occasion block) on the racetrack-facing end. Forbidden-adjacency log: none (no allergen/regulated separation in this bay).
+
+**Shelf zones:** Bull's-eye (center, eye-level) → highest-GMROF Tortilla hero. Eye-level band → BFY (highest-margin) + new launches. Reach zone → mature high-velocity Potato. Stretch/stoop → multipacks + value tier. Decompression (first 5–15 ft) → exploration BFY, never stock-up Potato.
+
+**End-cap & secondary:** Racetrack end-cap (2–3× back-aisle lift) → Tortilla + salsa themed bundle, 4-week promo rotation, mapped to the **Cooler Screens** slot on the adjacent cold-vault.
+
+**Digital-shelf integration:** ESL (SES-imagotag) pegged to each SKU master; promo-price auto-sync with a 5-min fail-safe pause on price-engine error; low-stock flicker visible back-office only. Retail-media: Cooler Screens slot creative is banner-brand-safe + MAP-strike-through suppressed.
+
+**Constraint-reconciliation log:** "Kept national Potato hero at **5 facings** vs. data-suggested 3 — vendor JBP guarantees a 5-facing minimum; flagged for category-management Q3 renegotiation." Private-label BFY held at 18% linear (≥ target). Resolution order applied: regulatory > contract > own-data > brand-block.
+
+**AI-shelf-scan pre-pass (Simbe Tally):** shelf-edge image density ✓, label ≥ vendor min size ✓, no shelf-talker obscuring barcode ✓, ESL placement in trained library ✓, lighting ≥ min lux ✓. One new BFY SKU pack not in Tally's library → queued for vendor-trains-on-pack before reset.
+
+**Expected impact:** +2.1% projected sales-per-linear-foot and a margin-mix lift from the Pretzel→Tortilla 2-ft shift (per-ft GMROF delta $958). *Assumption: shopper-mission distribution holds; lift is non-linear so the 2-ft shift is modeled conservatively, not extrapolated at full per-ft GMROF.*
+
+**Rollback / re-set trigger:** if sales-per-linear-foot drops > 5% vs. the pre-reset 4-week average for two consecutive weeks → revert to prior planogram with post-mortem; any vendor contract-violation flag → corrective reset within the contract cure window.
+
+**Config-utilization checklist:** ✅ `banner.format` · ✅ `fixture_dictionary` (gondola) · ✅ `vendor_contracts` (5-facing JBP) · ✅ `private_label_share_targets` (18% BFY) · ✅ `cdh_tree` (benefit block) · ✅ `retail_media.in_store` (Cooler Screens) · ✅ `esl_provider` (SES-imagotag). `must_stock_skus` not triggered this bay — noted, not missing.
+
+> *All figures machine-verified: shares sum to 100%; flags at >5pp; GMROF = margin÷LF; facings = max(3,2,2)=3; sales-per-LF $92,000÷24=$3,833.*

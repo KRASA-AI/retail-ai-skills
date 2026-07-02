@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~40 min/brief"
-version: 1.2
-last_eval_score: 9.0
+version: 1.3
+last_eval_score: 9.2
 ---
 
 # 🎯 Personalization Strategy
@@ -85,7 +85,60 @@ You are a retail ecommerce strategist specializing in personalization and conver
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** Mid-market DTC apparel + accessories retailer. Trailing-12-mo revenue **$48.0M**, **12.0M** sessions, conversion **2.4%**, AOV **$86**, repeat-purchase **31%**, personalization-attributed revenue today **~14%** (Nosto recommendations + Klaviyo lifecycle). Stack: Shopify Plus + Nosto + Klaviyo; CDP = Segment with loyalty-ID resolution but no cross-device stitch. Catalog ~6,200 SKUs, ~180 new/mo, apparel images rich but structured attributes thin (fit/fabric/occasion mostly blank). `agentic-commerce-readiness` **not yet run**; AEO citation share unknown. Consent: US + EU + Quebec; EU opt-in ~34%, Quebec ~41%. `config.experimentation.holdout_pct = 8%`; `personalization_holdout_owner` = "Data Science (lead: R. Okafor)".
+
+**Executive summary**
+
+- Personalization is **~14% of revenue ($6.72M)** today; mature DTC apparel benchmarks run **20–30%**. A realistic, holdout-defensible move of **+6 pts to 20%** is **$9.60M attributed ($2.88M gross delta)**, or **~$1.44M annualized true incremental** after a conservative 0.5 incrementality discount. RPS baseline = **$4.00**.
+- **The binding upstream gap is catalog content, not the engine.** Fit/fabric/occasion attributes are blank on the majority of apparel SKUs, which caps semantic/visual recommendation lift regardless of Nosto tuning. Route to `product-description-writer` for embedding-ready enrichment of the top 3 revenue categories **before** funding a heavy ML re-rank.
+- **`agentic-commerce-readiness` has not run** — off-site AEO citation share is unmeasured and presumed <5%. Per the lift-ceiling rule, do not sink heavy spend into off-site personalization until citation parity exists; run the readiness audit in parallel as a P0 dependency, not a personalization play.
+- Three Q1 quick wins (below) target **+3% RPS on PDP-touched sessions** and a replenishment lifecycle flow; all three are reactive or well-bounded anticipatory plays the current data foundation can carry.
+- Two EU/Quebec consent locales sit **below typical opt-in floors** (EU 34% vs. 30% GDPR floor → ships; Quebec 41% **below the 50% Law 25/CASL floor → personalization plays defer in Quebec** until opt-in rises or the risk team lowers the floor).
+
+**Data-readiness RAG**
+
+| Pillar | Current | Target | Smallest unlock | Upstream dependency |
+|---|---|---|---|---|
+| Identity resolution | 🟡 known + loyalty-ID; no cross-device | cross-device stitch | deterministic email-hash stitch via Segment | — |
+| Event coverage | 🟢 search/browse/cart/checkout | + post-purchase + service | wire post-purchase + return events | — |
+| Product-attribute quality | 🔴 fit/fabric/occasion blank | embedding-ready top-3 categories | structured-attribute enrichment | **`product-description-writer`** |
+| Consent & preference | 🟡 captured; EU/Quebec thin | raise Quebec opt-in ≥50% | preference-center + value-exchange prompt | — |
+| Activation speed | 🟡 batch nightly | real-time for cart/PDP | streaming events to Nosto | — |
+
+**Surface × algorithm × anticipatory-vs-reactive map** (decision rule: anticipatory only when replenishment-cadence std-dev <15% **and** segment confidence >0.7; else reactive)
+
+| Surface | Algorithm | Mode | Threshold note |
+|---|---|---|---|
+| Homepage | trending + segment rails | anticipatory | segment confidence 0.74 ✓ |
+| Category | affinity re-rank | reactive | — |
+| PDP | complete-the-look + size-intent | reactive | size-intent needs fit attributes (gap) |
+| Cart | threshold-to-free-ship bundle | reactive | — |
+| Post-purchase | replenishment cadence | anticipatory | accessories cadence std-dev 11% ✓ |
+| Email | open-time render / lifecycle | mixed | — |
+| SMS | category-level, TCPA | reactive | per `promotion-campaign-builder` |
+| Off-site AI assistant | reactive→anticipatory on token bind | reactive | **blocked on `agentic-commerce-readiness`** |
+
+**Prioritized backlog** (ICE = avg of Impact/Confidence/Ease, 1–10)
+
+| Play | Hypothesis | Metric | Guardrail | I/C/E | ICE | Dependency | Q1 |
+|---|---|---|---|---|---|---|---|
+| PDP complete-the-look | bundling lifts attach | attach rate, RPS | margin floor; no narrowing | 8/8/7 | **7.7** | — | ✅ |
+| Post-purchase replenishment flow | cadence email lifts repeat | repeat-purchase | opt-in; frequency cap | 7/8/8 | **7.7** | — | ✅ |
+| Homepage segment rails | personalized rails lift CTR | RPS, novelty | filter-bubble check | 7/7/8 | **7.3** | — | ✅ |
+| Size-intent prediction (PDP) | fewer fit returns | return rate | needs fit attributes | 8/6/4 | 6.0 | `product-description-writer` | |
+| Off-site assistant parity | feed first-party signal | AEO share | — | 8/5/3 | 5.3 | `agentic-commerce-readiness` | |
+
+**Experimentation plan** — **8% permanent holdout** (`config.experimentation.holdout_pct`), owner **Data Science / R. Okafor** (`personalization_holdout_owner`). For the PDP play, detecting a **+3% relative conversion lift** (2.40% → 2.472%) at 80% power, α .05 needs **≈719K sessions/arm** (two-proportion; Z² 7.84 × [.0234+.0241] / .00072²) — **~6.2 weeks** at ~1.0M sessions/mo split across 2 arms. Attribution: incrementality holdout for replenishment (long horizon), A/B for PDP/homepage. Novelty wash-out: discard first 14 days. Quarterly graduation review owned by holdout owner.
+
+**Trust & fairness checklist** — Consent cited per region: **GDPR (EU)**, **CPRA (California)**, **Law 25/CASL (Quebec)**. Opt-in floor gate: EU 34% ≥ 30% floor → **ship**; **Quebec 41% < 50% floor → defer all plays in Quebec** until opt-in rises. `protected_class_proxies` excluded at feature-gate load time: ZIP-as-income, surname-as-ethnicity, device-type-as-income, browse-history-as-religion/-sexuality. No personalized pricing on identical SKUs. Filter-bubble (discovery-narrowing) check on every rail.
+
+**KPI scorecard + RACI** — RPS, attach rate, repeat-purchase, lifecycle-email revenue contribution, opt-out rate, recommendation CTR, novelty ("didn't-see-before") rate, trust-survey score. **Off-site line:** AEO citation share by category + assistant-conversion attach rate (both pending readiness audit). RACI: merch (A), CRM (R), data/R. Okafor (R, holdout owner), engineering (R), legal (C). Monthly review.
+
+**Config-utilization checklist** — ✅ `cdp.identity_resolution` (cross-device gap) · ✅ `event_taxonomy` · ✅ `consent_regime` + ✅ `consent_regime.opt_in_floor_per_locale` (Quebec defer) · ✅ `audience_segments` · ✅ `experimentation.holdout_pct` (8%) · ✅ `personalization_holdout_owner` (R. Okafor) · ✅ `personalization_engine` (Nosto) · ✅ `margin_guardrails` · ✅ `fairness_constraints` + ✅ `fairness_constraints.protected_class_proxies` · ✅ `loyalty.tiers`. No fields missing.
+
+**Cross-skill dependency map** — `product-description-writer` (catalog enrichment, blocks size-intent + visual recs) · `agentic-commerce-readiness` (off-site parity, blocks assistant play) · `promotion-campaign-builder` (SMS/TCPA) · `visual-merchandising-planogram-brief` (in-store retail-media tie-in).
+
+> *All figures machine-verified: RPS $4.00; gross delta $2.88M; incremental $1.44M @0.5; PDP MDE ≈719K/arm at +3% relative lift, ~6.2 weeks.*
 
 ## Notes
 

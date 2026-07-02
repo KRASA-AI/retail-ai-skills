@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~7 min/case"
-version: 2.5
-last_eval_score: 9.0
+version: 2.6
+last_eval_score: 9.2
 ---
 
 # 🔄 Return Policy Explainer
@@ -168,9 +168,40 @@ You are a retail customer service policy specialist. Your job is to translate re
 
 **Config-utilization checklist:** ✅ `return_policy.windows` (30d standard, within) · ✅ `return_policy.restocking_fee_schedule` (0% in-window unopened) · ✅ `return_policy.return_shipping_paid_by` (merchant, standard) · ✅ `return_policy.refund_method_matrix` (cell cited) · ✅ `return_policy.reverse_logistics_path` (QR + Happy Returns) · ✅ `brand.voice` (warm, brief) · ✅ `loyalty.tiers` (Silver) · ✅ `payment_methods` (Visa card). Not triggered this case: `escalation_thresholds` (no goodwill), `serialization.authentication_required_categories` (non-serialized) — noted, not missing.
 
+> Third reference run — the **warranty branch** (scenario type 9), the case neither example above covers and the one with the most different decision logic: the return window is *closed*, so this is **not a refund decision** — it routes to the manufacturer-warranty repair/replace path with serialized authentication. **Input:** $349 espresso machine (electronics, serialized — IMEI/serial), order placed **142 days ago** (standard window 30 days → **closed**; manufacturer warranty 12 months → **open**), defective: pump failure, paid Visa, Bronze loyalty, channel = email, sentiment = frustrated. No image-claim photos uploaded (customer described the fault in text).
+
+**Scenario tag:** (9) warranty claim — manufacturer defect past return window. **142 > 30 → standard return ineligible; 142 ≤ 365 → within manufacturer warranty.** Electronics is in `serialization.authentication_required_categories` → serial verification required. No customer photos → **no `return-fraud-image-shield` bridge** unless the manufacturer requests fault images (request the four-image set proactively since the item is described as defective). **Not a refund/restocking case** → restocking math N/A; refund-method matrix N/A unless the unit is confirmed unrepairable (then advance-replacement or DOA-equivalent refund per config).
+
+**Customer-facing reply (email):**
+
+> Subject: Your espresso machine (order #RV-88210) — warranty repair/replacement
+>
+> Hi Jordan,
+>
+> Sorry the pump gave out — a machine this age shouldn't be failing, and the good news is you're well inside the **12-month manufacturer warranty** (about 4½ months in), so this is fully covered even though our 30-day return window has closed. You won't pay for the fix.
+>
+> Because it's serialized, two quick things let us skip all back-and-forth: (1) the **serial number** on the base plate, and (2) three photos — the unit, the base-plate serial, and the leak/fault if it's visible. Reply with those and we'll open the warranty claim the same day.
+>
+> Here's the path: as a covered warranty defect we'll send a **prepaid carrier home-pickup** label (no trip for you), and the manufacturer's authorized service center will repair or, if it's unrepairable, replace the unit — typical turnaround **7–10 business days** from pickup. If the service center deems it unrepairable and a replacement is out of stock, we convert to a **refund to your original Visa (3–5 business days)** at that point. I'll keep you posted at each step.
+>
+> Send the serial + photos and I'll get the claim open today.
+>
+> Warmly,
+> Maya — Riverside Outfitters Customer Care
+
+**RMA block:** Warranty-claim # RV-88210-W1 (issued on serial receipt) · Path: prepaid carrier home-pickup (warranty-covered, merchant/manufacturer-paid) → manufacturer authorized service center, **not** the standard kiosk/refund flow · Packaging: original box preferred for electronics; serial must be visible at intake · Auth: serial/IMEI scanned at service-center intake; serial mismatch → LP/authentication queue · SLA: repair-or-replace 7–10 biz days from pickup; refund fallback 3–5 biz days to Visa only if unrepairable + no replacement stock.
+
+**Restocking-fee math:** N/A — warranty defect, no restocking fee and no cash refund at this stage (repair/replace first). Refund-method matrix is **held** unless the unit is confirmed unrepairable.
+
+**Reverse-logistics path:** carrier home-pickup (warranty defect → merchant/manufacturer-paid; not customer-paid).
+
+**Internal note (CRM):** Tag 9 warranty/past-window · window 142d > 30d standard (closed), ≤ 365d warranty (open) · route = manufacturer authorized service center (repair/replace), NOT refund flow · serial-auth required at intake (electronics) · refund matrix HELD → only `[card][email][bronze]` 3–5 biz days if unrepairable + no replacement · restocking N/A · path carrier home-pickup · goodwill flag: N/A (in-warranty entitlement, not a goodwill exception) · abuse score: clean · image bridge: not triggered (no photos; fault photos requested for the manufacturer claim) · RMA RV-88210-W1 · authority: agent self-serve (warranty entitlement, no exception).
+
+**Config-utilization checklist:** ✅ `return_policy.windows` (standard 30d closed; warranty 12mo open) · ✅ `return_policy.return_shipping_paid_by` (merchant/manufacturer, warranty) · ✅ `return_policy.reverse_logistics_path` (carrier home-pickup → service center) · ✅ `return_policy.refund_method_matrix` (held; `[card][email][bronze]` cited as fallback) · ✅ `serialization.authentication_required_categories` (electronics → serial) · ✅ `warehouse.rma_intake_address` (service-center routing) · ✅ `brand.voice` (warm) · ✅ `loyalty.tiers` (Bronze) · ✅ `payment_methods` (Visa). Not triggered: `restocking_fee_schedule` (warranty, no fee), `escalation_thresholds` (entitlement, no goodwill) — noted, not missing.
+
 ## Notes
 
-- The two worked examples bracket the skill's range on purpose: the gift/defective/step-up case shows the full fraud-bridge + dual-path machinery; the in-window unopened case shows the **one-touch path** — resolve, RMA, refund SLA, done — with the bridge and dual draft correctly *skipped*. A skill that only ever demonstrates the hard case teaches agents to over-process the 80% that are simple.
+- The three worked examples bracket the skill's full range on purpose: the in-window unopened case shows the **one-touch path** (bridge + dual draft correctly skipped); the gift/defective/step-up case shows the full **fraud-bridge + dual-path** machinery; the **warranty case shows the third decision tree entirely** — window closed, so it is a repair/replace routing decision, not a refund decision, with the refund matrix *held* rather than fired. A skill that only ever demonstrates within-window refunds teaches agents to force a refund frame onto a warranty claim, which is the most common real-world miss on type-9 cases.
 - Image-claim cases never skip `return-fraud-image-shield`. The bridge is the load-bearing addition in v2.2 — goodwill on a manual-review tier case is the same failure mode as a missed `agentic-checkout-fraud-shield` decline at purchase, paid out the back door.
 - The reverse-logistics path matrix is a customer-experience lever, not a cost lever. A kiosk drop-off costs the merchant more in vendor fee than a customer-paid label, but the conversion-on-replacement-purchase delta typically more than covers it. The skill should pick the path that minimizes customer friction within the policy lane, not the one that minimizes line-item cost.
 - Post-tariff buyer-pays-return-shipping is a 2026 reality on cross-border lanes that have lost de-minimis treatment. The skill must surface the cost to the customer up front; do not paper over a $30 return-shipping bill in a 3-line reply.

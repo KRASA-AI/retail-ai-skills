@@ -15,6 +15,7 @@ This repo is a complete AI toolkit for retail & e-commerce. Every skill is a sta
 |-------|-------------|------------|
 | Agentic Assortment Planner | Move a buying team from quarterly batch assortment reviews to a continuous, agent-orchestrated replan loop. | ~60 min/cycle |
 | Agentic Checkout Fraud Shield | Produce a targeted fraud-signal review and chargeback-defense plan for retailers whose storefront is being hit by autonomous AI shopping agents, friendly-fraud disputes, or AI-generated return scams. | ~35 min/review |
+| Agentic Merchant Admin Assistant | Scope, configure, and govern a merchant-side agentic admin assistant — the native-platform or third-party agent that runs *inside the store's back office* and executes merchandising and operations work from natural-language instructions (catalog organization, product sorting and tagging, discount/promotion setup, campaign creation and optimization, theme/storefront edits, app-extension actions, and "respond to this trend" tasks). | ~90 min/scoping + ongoing |
 | Competitive Price Check | Produce a decision-ready competitive price comparison across 3–7 competitors for a target SKU set — built on a formal SKU-match taxonomy, a seven-component landed-price formula, a six-tier positioning ladder, a MAP / UPP violation escalation path, and a time-bounded promo-urgency score — so pricing, buying, and merchandising teams can commit to an action inside one business day instead of waiting for the monthly report. | ~20 min/check |
 | Demand Forecasting Brief | Produce a structured, accuracy-scored demand forecast for a product category or SKU set by decomposing history into level / trend / seasonality / external, picking the right method per SKU pattern, attaching confidence intervals, and tying the forecast to open-to-buy, safety-stock, and promotional decisions. | ~30 min/forecast |
 | Distributed Order Allocation | Move a multi-node retail network from a static "ship from nearest DC" routing rule to an agent-orchestrated, per-order allocation decision: for every digital order line, pick the node — DC, store, dark store, vendor drop-ship, marketplace partner, or split-shipment combination — that minimizes total landed cost, respects the customer's promised delivery window, protects store labor capacity, and reflects the merchant's carbon and brand-experience targets. | ~50 min/cycle |
@@ -40,7 +41,7 @@ This repo is a complete AI toolkit for retail & e-commerce. Every skill is a sta
 | Meeting Summarizer | Summarize meeting notes into action items, decisions, and follow-ups. | ~10 min/use |
 | Review Responder | Craft professional responses to online reviews — both positive and negative. | ~10 min/use |
 
-**Total time saved per use: ~1042+ minutes across all skills.**
+**Total time saved per use: ~1132+ minutes across all skills.**
 
 ## Quick Start
 
