@@ -1,0 +1,19 @@
+skill: in-store-retail-media-inventory
+file: skills/operations/in-store-retail-media-inventory.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.0"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 6
+  personalization: 9
+  efficiency: 7
+overall: 8.2
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Example Output is an unfilled placeholder ('[This section will be populated...]') -- no worked, paste-ready output to grade, the dominant limiter (output_quality 6). Minor cross-reference slip: step 5 points at retail_media.adjacency_rules for the impression-discrepancy budget, but adjacency_rules govern brand-safety, not measurement. Exceptional trade depth (IAB In-Store Measurement, GARM, clean-room k-anon >=1,000, iROAS/vCPM)."

@@ -1,0 +1,19 @@
+skill: return-policy-explainer
+file: skills/customer-service/return-policy-explainer.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.6"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 7
+overall: 8.8
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors across all three worked runs ($189 x 0% = $0 net $189; $64; warranty '142 > 30 closed, 142 <= 365 open, ~4.5 months' where 142/30 ~= 4.7 -- all check). Minor stale self-reference (body cites a 'v2.2 addition' while frontmatter is v2.6). Efficiency (7) limited by a heavy 7-category required-input block despite config defaults."

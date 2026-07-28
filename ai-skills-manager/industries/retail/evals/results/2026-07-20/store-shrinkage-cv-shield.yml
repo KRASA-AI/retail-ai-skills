@@ -1,0 +1,19 @@
+skill: store-shrinkage-cv-shield
+file: skills/operations/store-shrinkage-cv-shield.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.3"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors: $25.5M x 2.4% = $612k; ~$118k SCO recovery; $78k / ($118k/12) ~= 7.9mo ~= '~8-month payback' all consistent. Deep current AP/CV fluency (Hailo/Jetson, BIPA/CUBI/MHMD/NYC POST/EU AI Act, EBR sub-second journal join). Heavy 7-section required-input list holds efficiency at 8."

@@ -1,0 +1,19 @@
+skill: demand-forecasting-brief
+file: skills/operations/demand-forecasting-brief.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.2"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No material arithmetic errors: baselines (420 x 1.08 x seasonality), multiplicative external multiplier (1.08 x 1.15 x 0.95 = 1.180), CI bands (+/-1.28 x 70), and OTB (2,703 - 520 - 300 + 198 = 2,081) all re-derive. Two trivial rounding blips (high 4-wk total printed 3,063 vs 3,062; competitor-cuts 2,566 vs ~2,561) -- immaterial. Accuracy-honest (names its own MAPE/WAPE/bias vs holdout)."

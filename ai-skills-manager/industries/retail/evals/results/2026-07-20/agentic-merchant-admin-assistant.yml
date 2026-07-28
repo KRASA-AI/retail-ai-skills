@@ -1,0 +1,19 @@
+skill: agentic-merchant-admin-assistant
+file: skills/operations/agentic-merchant-admin-assistant.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 8
+  industry_fit: 9
+  output_quality: 8
+  personalization: 8
+  efficiency: 8
+overall: 8.4
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors ($500/day = $3,500/week, 110% pause threshold consistent). Tier-map ceilings are illustrative rather than formula-derived, so specificity is qualitative (8); the worked example is complete but carries no computation to demonstrate paste-readiness."

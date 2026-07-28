@@ -1,0 +1,61 @@
+# Retail & E-commerce Skills Evaluation Rubric
+# Used by the Skill Evaluator scheduled task to grade every skill in skills/ (excluding _shared/).
+# Each dimension scored 1-10. Overall = weighted sum.
+version: 1.0
+created: 2026-07-20
+scale:
+  min: 1
+  max: 10
+dimensions:
+  clarity:
+    weight: 0.20
+    description: "Instructions are clear and unambiguous. A new operator (buyer, merchandiser, store manager, CX agent) could run the skill without guessing intent."
+    anchors:
+      "1-3": "Vague, contradictory, or missing core steps."
+      "4-6": "Followable but with ambiguous spots that invite wrong outputs."
+      "7-8": "Clear structure, well-sequenced, minor ambiguity."
+      "9-10": "Unambiguous, well-ordered, self-explanatory throughout."
+  specificity:
+    weight: 0.20
+    description: "Enough concrete detail (formulas, thresholds, field names, tables, scoring weights) to produce a useful output without invention."
+    anchors:
+      "1-3": "Generic prompt with no domain detail."
+      "4-6": "Some detail but key numbers/rules left to the model."
+      "7-8": "Concrete rules, named fields, most thresholds specified."
+      "9-10": "Fully specified calc rules, thresholds, and field bindings."
+  industry_fit:
+    weight: 0.20
+    description: "Correct retail & e-commerce terminology, regulations, and real-world workflows. Sounds like it was written by a merchant/operator. Covers 2026-era realities (agentic commerce, retail media, tariffs, omnichannel)."
+    anchors:
+      "1-3": "Generic or incorrect terminology."
+      "4-6": "Mostly correct but shallow on retail specifics."
+      "7-8": "Correct terminology and realistic workflow."
+      "9-10": "Deep trade fluency: MAP/UPP, OTB, GMROI, sell-through, allocation, platform/marketplace specifics, edge cases."
+  output_quality:
+    weight: 0.20
+    description: "Produces immediately usable, internally consistent output. Worked examples are complete and arithmetically error-free."
+    anchors:
+      "1-3": "Output would need a full rewrite."
+      "4-6": "Usable skeleton but incomplete or inconsistent examples."
+      "7-8": "Strong output; a gap (single/partial example or a minor inconsistency)."
+      "9-10": "Complete, internally consistent, paste-ready worked examples."
+  personalization:
+    weight: 0.10
+    description: "Leverages config.yml business context (company name, rates, margins, banners, platforms, voice, service area) effectively."
+    anchors:
+      "1-3": "No personalization."
+      "4-6": "Mentions config generically."
+      "7-8": "Named config fields bound throughout with sane defaults."
+      "9-10": "Deep, voice-tuned personalization with graceful missing-field handling."
+  efficiency:
+    weight: 0.10
+    description: "Minimal back-and-forth. Sensible defaults and one-question triage instead of interrogation."
+    anchors:
+      "1-3": "Requires extensive interrogation before producing anything."
+      "4-6": "Several clarifying rounds likely."
+      "7-8": "Single-question triage with defaults."
+      "9-10": "Runs from defaults; asks only for genuinely blocking inputs."
+notes:
+  - "Skills in skills/_shared/ are cross-industry (email-drafter, meeting-summarizer, review-responder) and excluded from this retail eval."
+  - "config.yml is not committed to the repo; personalization is graded on how well the skill BINDS named fields and handles their absence, not on a live config."
+  - "The dominant failure mode observed across KRASA libraries is arithmetic/consistency errors inside worked examples. Grade output_quality COLD: re-derive every number in every worked example rather than trusting it."

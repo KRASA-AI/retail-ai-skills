@@ -1,0 +1,19 @@
+skill: agentic-commerce-readiness
+file: skills/sales/agentic-commerce-readiness.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.6"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 7
+  specificity: 8
+  industry_fit: 9
+  output_quality: 6
+  personalization: 8
+  efficiency: 7
+overall: 7.5
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Example Output is a placeholder -- the scored 0-100 readiness report, protocol pass/warn/fail table, and structured-data band breakdown are defined but never shown with numbers (output_quality 6). Step-3 protocol paragraphs are single 300+ word blocks a new operator must re-read (clarity 7). Deepest 2026 protocol coverage of the set (AP2, UCP Catalog/Loyalty/Post-Purchase, Universal Cart, ACE) with concrete thresholds (p95 freshness, >=120 req/min headroom)."

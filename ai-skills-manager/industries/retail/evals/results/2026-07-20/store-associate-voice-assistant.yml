@@ -1,0 +1,19 @@
+skill: store-associate-voice-assistant
+file: skills/operations/store-associate-voice-assistant.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.2"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 8
+  industry_fit: 9
+  output_quality: 6
+  personalization: 9
+  efficiency: 8
+overall: 8.1
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Example Output is an unfilled placeholder -- no worked utterance-set/escalation-matrix output to verify (output_quality 6). Several operational thresholds (latency, price ceilings) deferred to escalation_thresholds rather than illustrated (specificity 8). Strong frontline realism (WER-in-pilot-not-lab, T-coil/pitch-range ASR-bias gate, two-party-consent list, works-council notice)."

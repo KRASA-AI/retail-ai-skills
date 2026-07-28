@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~50 min/cycle"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -86,7 +86,126 @@ You are an always-on order-allocation co-pilot for a retail fulfillment team. Yo
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Worked example — one day's allocation cycle, with two order lines shown at full depth. Every figure is internally consistent and recomputable from the inputs shown; a real run substitutes the merchant's own node feeds, rate cards, and `config.yml`.
+
+### Cycle header
+
+**Banner:** Harborline Home (240 doors, home & hardware) · **Cycle:** 2026-07-13, digital orders 06:00–18:00 · **Volume:** 18,400 order lines
+**Network:** 3 DCs · 6 dark stores · 240 ship-from-store-capable doors · 40 vendor drop-ship SKUs
+**Feed freshness:** 246 of 249 nodes current. **3 nodes over staleness threshold** → **Store #031, #147, DS-5 are paused for routing this cycle** (not de-prioritized — *eliminated*, per the hard rule). Ghost-inventory exposure avoided on an estimated 84 lines.
+**Targets:** OTIF 96.4% (channel: own-site standard) · landed cost/order $10.95
+
+### Prize framing (step 1)
+
+Annualized on 4.6M digital orders, with routing leverage on the **62%** of volume that has more than one eligible node (the other 38% is single-node by geography or SKU and gets a lighter-touch rule-based policy — the agent adds nothing there and should not be run on it):
+
+| Component | Math | $ |
+|---|---|---|
+| Shipping saved | 4.6M × 62% × $0.89/order | **+$2,538,280** |
+| Missed-promise recovered | 4.6M × 3.3 OTIF pts × $4.10 recovery cost avoided | **+$622,380** |
+| Store labor protected | 41,000 selling-floor hrs × $19.40 loaded | **+$795,400** |
+| Carbon offset paid | 4.6M × 62% × $0.06 shadow price | **−$171,120** |
+| **Net prize** | | **≈ $3.78M/yr** |
+
+Marketplace and BOPIS channels already clear the OTIF standard on single-node routing → flagged as light-touch, excluded from the prize.
+
+### Worked line 1 — the cheapest node is not the eligible node
+
+**Order #DG-88214** · 1 × 22" 2-stroke gas string trimmer (**hazmat: fuel system**) · Denver 80211 · promised **Thu Jul 16**, standard · residential
+
+**Step 2 — eligibility filter:**
+
+| Node | Hard-rule check | Eligible? |
+|---|---|---|
+| **DS-3 (Aurora, zone 1)** | **No hazmat compliance posture** | ❌ **ELIMINATED** |
+| Store #118 (Denver, zone 1) | Hazmat-trained pickers ✓ · store-pick share 78% of ceiling ✓ · cutoff 15:20 not passed ✓ | ✓ |
+| DC-West (Reno, zone 4) | Hazmat ✓ · capacity ✓ · cutoff ✓ | ✓ |
+| Store #031 | **Feed stale** | ❌ ELIMINATED |
+
+**Step 3 — cost-and-carbon scoring on the eligible set:**
+
+| Node | Carrier | Packaging | Pick-pack | Landed | Carbon (kg × $0.12) | Store-labor penalty | **Score** |
+|---|---|---|---|---|---|---|---|
+| **DC-West** ✅ | $9.84 | $1.35 | $2.10 | $13.29 | 2.1 kg → $0.25 | $0.00 | **$13.54** |
+| Store #118 | $6.42 | $1.35 | $4.85 | $12.62 | 0.6 kg → $0.07 | **$2.40** (78% of ceiling) | $15.09 |
+| *DS-3 (ineligible)* | *$6.42* | *$1.35* | *$2.95* | *$10.72* | *$0.07* | *$0.00* | *$10.79* |
+
+**Allocation: DC-West, ground, 3-day transit, arrives Jul 16 ✓ (promise met with 0 days of slack).**
+
+Two things a reviewer needs to see and both are on the packet: **(i)** the *cheapest* node by raw landed cost, DS-3 at $10.79, was eliminated on a compliance posture, not on price — a router that optimizes cost first would have shipped a fuel-system product from a node with no hazmat certification; **(ii)** Store #118 is cheaper on landed cost ($12.62 vs $13.29) but loses on the composite once the store-labor penalty is priced in — at 78% of its daily ship-from-store ceiling, the marginal pick costs the selling floor more than the $0.67 of shipping it saves. **Top non-picked alternative: Store #118, +$1.55 composite, reason: store-labor protection.** If the merchant disagrees with the penalty curve, that is a `config.store_pick_max_share` conversation — the agent surfaces it rather than burying it.
+
+### Worked line 2 — split-vs-single under "allowed-with-notice"
+
+**Order #DG-90733** · 3 lines (12-pk LED bulbs · 4 × 40lb mulch · cordless drill) · promised **Fri Jul 17** · policy: **allowed-with-notice**
+
+No single node holds all three lines. Options evaluated (step 4):
+
+| Option | Nodes | Landed cost | Parcels | Delivery dates | Promise |
+|---|---|---|---|---|---|
+| **A ✅** | Store #204 (bulbs + drill) + DC-East (mulch) | **$29.80** ($11.20 + $18.60) | 2 | Jul 15, Jul 17 | ✓ both inside window |
+| B | DC-West single, mulch backordered | $12.90 + reship | 1 (+1) | Jul 15, **Jul 22** | ❌ **misses promise** |
+| C | DC-East, all three | $34.10 | 1 | Jul 17 | ✓ |
+
+**Recommend A** — $4.30 cheaper than C and both hit the window. **The customer-experience cost is stated next to the dollar, not hidden behind it:** A means 2 parcels on 2 dates against C's single delivery. Notice text generated and queued; the line routes **only after** the customer's notice preference is satisfied. If the merchant's brand promise weights unboxing/single-delivery above $4.30, C is the right call and the packet gives the reviewer everything needed to make it in one click.
+
+### Cross-border duty summary (step 6) — 220 lines, US → CA
+
+| Lane | Rule applied | Cached rate | Recomputed | Δ landed |
+|---|---|---|---|---|
+| DC-East → ON, order CA$168 | **CUSMA de-minimis: CA$40 tax-free / CA$150 duty-free — order exceeds both** | duty-free (stale) | duty + GST/HST assessed | **+CA$14.20/order** |
+
+The cached carrier table still carried the pre-threshold treatment. **The duty cost is surfaced on the packet before routing, with the named rule cited** — not discovered at the customer's door as an unexpected collect-on-delivery charge, which is the failure mode this pass exists to prevent. Finance can audit the call from the rationale line.
+
+### Store-labor protection summary
+
+| Store | Share consumed | Ceiling | Decline rate | Action |
+|---|---|---|---|---|
+| #118 | 78% | 85% | 4% | Penalty applied; 1 line re-routed to DC-West |
+| #204 | 41% | 85% | 2% | Clean |
+| #093 | **91%** | 85% | 11% | 🔴 **Over ceiling — hard-blocked from new routes today.** Cross-check: `labor-scheduling-agent` flags #093 understaffed (2 NCNS). Zero new ship-from-store volume assigned. |
+
+### Failure-mode rule book (abridged)
+
+| Failure mode | Auto-recovery | Max retries | Audit line |
+|---|---|---|---|
+| Stale feed catches up, unit not actually there | Re-allocate to next-best eligible node | **2**, then human | node, timestamp, ghost-qty, re-route target |
+| Store declines route | Next-best non-store node; increment decline counter | 1 | store, reason code, decline-rate impact |
+| Carrier service-fail | Switch service within promise; else notify + new promise | 1 | carrier, service, promise delta |
+| Customs hold | **No auto-retry** → human queue | **0** | lane, HS code, rule cited |
+
+Audit trail is written to survive a chargeback / consumer-complaint review: every record carries the eligible set, the eliminated nodes *with their named blockers*, the composite score, and the non-picked alternative.
+
+### Approval-ready packet (step 9) — reviewer queue, capped at 50
+
+| Exception class | Lines | Reviewer action |
+|---|---|---|
+| Clean auto-allocations | 17,932 | None |
+| Threshold-bumping store routes | 214 | Batch-approve or re-route |
+| Split under "allowed-with-notice" | 138 | Confirm notice sent |
+| Cross-border with new duty exposure | 220 | Finance sign-off |
+| **Unrouted — escalated** | **31** | 🔴 Named blockers: 22 = no eligible node w/ hazmat posture in-region · 9 = every node stale |
+| Stale-feed suppressed | 84 | Ops: refresh 3 node feeds |
+
+Sorted by |$ impact| + CX risk; **50-exception cap enforced — 553 exceptions exist, so the top 50 are surfaced and the remainder is a constraint-checked backlog, not a dropped queue.**
+
+### KPI scorecard and rollback triggers
+
+OTIF by channel · split-shipment rate · store-pick share vs. ceiling · ship-from-store decline rate · landed cost/order · kg CO₂e/order (GLEC) · exception clearance time · **mis-route incidence** · shipping-complaint rate.
+**Rollback to rule-based routing** (agent paused) if, for **two consecutive cycles**: mis-route > 0.5%, OTIF regresses > 1.0 pt vs. baseline, or store-decline rate > 15%.
+
+### Write-back plan
+
+| Allocation type | OMS endpoint | Commit | Rollback window | Gate |
+|---|---|---|---|---|
+| Standard domestic | Manhattan Active Omni — soft reservation | Soft | Until label purchase | Auto |
+| Store-pick | Manhattan + store task app | Soft | 45 min | Auto |
+| **Hard commit (label bought)** | Manhattan | **Hard** | **15 min** | Auto within policy |
+| **International air w/ non-refundable duty prepay** | Manhattan | **Hard, irreversible** | **None** | 🔴 **Explicit human approval gate — always.** |
+
+### Config-utilization checklist
+
+`node_directory` ✓ (249 nodes; 3 stale flagged) · `carrier_rates` ✓ (⚠️ CA lane table stale — flagged) · `service_level_targets` ✓ (OTIF 96.4%) · `split_shipment_policy` ✓ (allowed-with-notice) · `store_pick_max_share` ✓ (85%; #093 blocked) · `peak_blackout_windows` ✓ (none active) · `compliance_postures` ✓ (**hazmat eliminated the cheapest node**) · `carbon_target` ✓ ($0.12/kg shadow price) · `parity_rules` ✓ · `voice` ✓
+**Unavailable / backfill:** no `packaging.carton_library` → right-size carton selection fell back to a flat $1.35 packaging estimate per node. Backfill to make the carbon and packaging lines real rather than nominal.
 
 ## Notes
 

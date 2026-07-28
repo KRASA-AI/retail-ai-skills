@@ -1,0 +1,19 @@
+skill: visual-merchandising-planogram-brief
+file: skills/operations/visual-merchandising-planogram-brief.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "One sign-consistency error in the space-to-sales table: Better-for-you row shows 'delta vs rev -2.6 / delta vs margin +0.5' but by the table's own convention (delta = linear - X) it should be +2.6 / -0.5. Both signs inverted; does not change the flag verdict (neither exceeds 5pp). All other math re-derives (GMROF ranking, facings max(3,2,2)=3, sales-per-LF $3,833). output_quality 8."

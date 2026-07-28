@@ -1,0 +1,19 @@
+skill: return-fraud-image-shield
+file: skills/operations/return-fraud-image-shield.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.3"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 9
+  output_quality: 6
+  personalization: 9
+  efficiency: 8
+overall: 7.9
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Example Output is an unfilled placeholder -- no worked composite-score output exists (output_quality 6). Secondary: the 11-field config section is dense prose partly duplicating the process steps, taxing clarity (8). Sharp current synthetic-evidence framing (C2PA/generator-watermark, cross-merchant reuse, ReturnPro X-ray, Boll & Branch precedent)."

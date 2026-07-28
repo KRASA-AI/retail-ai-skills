@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~90 min/scoping + ongoing"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -89,7 +89,36 @@ You are a governance architect for a retailer's merchant-side agentic admin assi
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** Mid-market Shopify Plus apparel merchant turning on **Shopify Sidekick** (proactive, everywhere in admin) + **Campaign Autopilot**. In-scope admin areas: catalog/PIM, promotions/discounts, campaigns/marketing, theme, inventory thresholds. `voice_owner` = *Dana R. (Brand Director)*; `pricing_guardrails` GM floor 55%, max autonomous discount 15%; `regulated_categories` = none; `approval_roles` = {promo: Merch Manager, theme: Web Lead, refund: CX Supervisor}; `audit_log_target` = Shopify admin activity log + BigQuery export; `kill_switch_owner` = *Priya S. (Head of E-comm)*.
+
+**Toil vs cost-of-error frame (excerpt):** *Merge duplicate SKUs* removes ~4 hrs/wk of catalog cleanup; failure cost is low (reversible, internal) → autonomy candidate. *Bulk-edit live prices* removes ~2 hrs/wk but failure cost is severe (customer-visible, money-moving, margin leak, diverges from what outside shopping agents see) → **defaults to gated regardless of platform capability**.
+
+**Autonomy-tier map:**
+
+| Task class | Blast radius (rev / cust-vis / money) | Tier | Ceiling / scope fence | Never-autonomous exclusion |
+|---|---|---|---|---|
+| Read/report catalog & sales | rev / int / no | **Observe** | read-only | — |
+| Retag draft category | rev / int / no | **Autonomous-within-budget** | ≤ 200 SKUs/action, draft namespace only | published taxonomy |
+| Merge obvious duplicate SKUs | rev / int / no | **Autonomous-within-budget** | ≤ 25 merges/day, high-confidence only | ambiguous matches → Suggest |
+| Draft a discount | rev / cust-vis / no | **Suggest** | draft/preview only | auto-publish |
+| Publish a discount | hard / cust-vis / money | **Execute-with-approval** | ≤ 15% depth, category-scoped; approver = Merch Manager, SLA 4 hrs | > 15% depth; sitewide |
+| Campaign Autopilot bid opt. | rev / cust-vis / money | **Autonomous-within-budget** | **$500/day → $3,500/wk** envelope; GM floor 55% guardrail; channels: Meta+Google only | creative that breaks brand voice |
+| Edit live theme code | hard / cust-vis / no | **Execute-with-approval** | version-pinned; approver = Web Lead | direct push to `main` theme |
+| Bulk-edit live prices | hard / cust-vis / money | **Suggest** (hard-gated) | proposal only → human publish | any autonomous tier |
+| Issue refund | hard / cust-vis / money | **Execute-with-approval** | approver = CX Supervisor | any autonomous tier |
+| Change inventory reorder threshold | rev / int / no | **Suggest** | draft → planner accept | auto-apply |
+
+**Autonomous-campaign guardrail (Campaign Autopilot):** budget envelope **$500/day = $3,500/week**; objective = ROAS, guardrail = *do not optimize conversion by discounting below the 55% GM floor*; brand-voice gate on all generated creative (reconciled to Dana R.'s `brand-agent-authoring` persona — the agent does **not** mint a second voice); human-*on*-the-loop review of the agent's bid/creative choices every Monday even though each action is within budget.
+
+**Audit-log field spec (per agent action):** triggering instruction · interpreted action · before/after (or version-history link) · dollar impact · tier exercised · approver (if any) · timestamp · **cross-surface reconciliation status** (does this promo match what `agentic-commerce-readiness` exposes to outside shopping agents?). Target: Shopify activity log + BigQuery; retention 12 months; monthly review.
+
+**Cross-surface reconciliation:** any discount the admin agent sets is checked against `pricing_guardrails` **and** against the syndicated catalog price outside shopping agents see — an internally-set promo and the externally-visible price never diverge. App-extension de-confliction: Klaviyo (email) and Sidekick can both touch a promo → **single lever owner = Merch Manager**, precedence = Sidekick drafts, Klaviyo sends; they do not both edit the promotion object.
+
+**Rollback / kill switch:** draft-discard for Suggest tier; theme-version restore for theme edits; promo-deactivate + price rollback for pricing; transaction reversal for refunds. Auto-pause to Suggest-only on: error rate > 5%/day, ad-spend > 110% of the $3,500 envelope, a chargeback/complaint spike, or any brand-voice incident. Named kill switch: **Priya S.**, documented halt procedure.
+
+**Staged rollout:** Phase 1 — Observe/Suggest on catalog cleanup only (retag drafts, dup-SKU merges) for a clean 2-week audit window. Phase 2 — promote dup-SKU merge to Autonomous-within-budget + enable Campaign Autopilot inside the $3,500 envelope. **No customer-visible money-moving task reaches an autonomous tier in Phase 1.** Promote metric: approval-acceptance ≥ 95%, error rate < 2%, $-variance < 5%; demote on any breach.
+
+**Config-utilization checklist:** ✅ `voice_owner` (Dana R.) · ✅ `pricing_guardrails` (55% floor, 15% max autonomous depth) · ✅ `promotion_guardrails` (read from source, not redefined) · ✅ `approval_roles` (Merch Mgr / Web Lead / CX Sup) · ✅ `audit_log_target` (activity log + BigQuery) · ✅ `kill_switch_owner` (Priya S.) · ✅ `regulated_categories` (none in scope). Brand-voice and promotion rules cited as **read from** `brand-agent-authoring` / `promotion-campaign-builder`, not authored here.
 
 ## Notes
 

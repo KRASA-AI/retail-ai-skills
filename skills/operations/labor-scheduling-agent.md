@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~75 min/cycle"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -82,7 +82,99 @@ You are an always-on labor co-pilot for retail store operations. Your job is to 
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Worked example — one store, one planning week. Every figure is internally consistent and recomputable from the inputs shown. **Compliance figures are computed from the merchant's encoded `config.yml` rules, not from the agent's own recollection of statute** — that is a deliberate design choice, restated in the packet, because labor law moves faster than any model's training data.
+
+### Cycle header
+
+**Banner:** Midway Fresh (210 doors) · **Store:** #0442, urban grocery, 38,000 ft², **Chicago** · **Week:** W29 (Jul 20–26)
+**Departments:** front-end, fresh, deli, bakery, grocery, back-of-house · **Roster:** 31 associates (2 minors, 1 RX-tech n/a at this format, 6 key-holders)
+**Forecast:** `demand-forecasting-brief` W29 ingested — hour-by-hour by department, HIGH confidence except Thu (local-event driver, wide band)
+**Jurisdiction:** Chicago Fair Workweek — **14-day advance notice**, predictability pay for in-window changes, right-to-rest premium on <10h turnarounds. *All three rules are read from `config.fair_workweek_jurisdictions`, and the packet cites the config key on every premium line so the operator can verify against current counsel guidance.*
+**Publish deadline:** Sun Jul 5 (14 days ahead) — **schedule is being assembled 3 days late; every change below therefore lands inside the lookback window and carries premium exposure.** That is the first thing on the manager's screen.
+
+### Prize framing (step 1)
+
+Store #0442 is **not** a light-touch store — wage-cost-% is 0.7 pts over target and peaks are under-covered:
+
+| Line | Math | $/week |
+|---|---|---|
+| Wage-cost gap vs. target | 10.1% actual vs. 9.4% target on $612,000 weekly sales | $4,284 over |
+| **Reflow, not cut** — 42 over-covered hrs (Mon–Wed 14:00–17:00 trough) redeployed to 31 under-covered peak hrs | net **−11 hrs** × $21.40 loaded | **+$235.40 payroll saved** |
+| Conversion recovered on now-covered peaks | $701.34 (Sat front-end) + $340.00 (weekday) | **+$1,041.34 GM** |
+| Premium pay added by compliant in-window moves | see compliance summary | **−$107.00** |
+| **Net** | | **+$1,169.74 / store / week** |
+
+Annualized at this store: **≈ $60,826**. **Do not multiply by 210 without per-store validation** — the prize is concentrated in stores with both a peak-coverage gap *and* a trough surplus, and roughly a third of the estimate here comes from a single Saturday peak.
+
+### Coverage-vs-demand grid — front-end, Saturday (the binding cell)
+
+| Hour | Forecast txns/hr | TPLH std | Cashier-hrs needed | Scheduled | Gap |
+|---|---|---|---|---|---|
+| 09:00–11:00 | 186 | 22 | 8.5 → 9 | 10 | +1 over |
+| **11:00–15:00 (peak)** | **412** | 22 | **18.7 → 19** | **14** | 🔴 **−5** |
+| 15:00–19:00 | 264 | 22 | 12.0 | 13 | +1 over |
+
+**Cost of the −5 gap, priced both ways so the manager sees the trade:**
+Under-coverage cost: 412 × 4 hrs = **1,648 transactions**; at the merchant's own wait-time curve, a >4-min lane wait produces a **3.1% walkaway** → 51.1 baskets × $52.80 avg × 26% GM = **$701.34 GM lost, every Saturday**.
+Cost to fix: 5 cashier-hrs × $21.40 = **$107.00** labor + **$42.80** predictability pay (2 shifts changed inside the 14-day window) = **$149.80**.
+**Fix it.** $701.34 recovered against $149.80 spent — the premium pay is not the reason to leave a peak uncovered, and the packet says so explicitly, because "we'll eat the wait to avoid the premium" is the default store-level instinct and it is wrong by ~4.7×.
+
+**Coverage gap the schedule cannot fix:** deli requires 6 deli-trained hrs Thu 16:00–19:00; only 2 qualified associates are available and both are at contracted max. **This is a hire / cross-train flag, not a scheduling flag** — it is routed to the district as a staffing request, not left as an unfilled shift the manager will be blamed for.
+
+### Compliance summary — premium-pay liability **before** publish, not after
+
+| Flag | Associate / shift | Rule (config key) | Liability | Recommendation |
+|---|---|---|---|---|
+| 🔴 **Clopen** | R. Delgado — Fri close 21:00 → Sat open 06:00 = **9.0 h rest** | `fair_workweek_jurisdictions.chicago.right_to_rest` (<10 h → second shift at **1.25×**) | **$42.80** ($21.40 × 0.25 × 8h) | **Reassign the Sat open to M. Iqbal** (available, key-holder, 0 clopen). Premium avoided, rest protected. If the manager keeps Delgado, written consent is required and the $42.80 is surfaced now. |
+| 🟠 In-window changes | 3 shifts moved inside the 14-day lookback | `fair_workweek_jurisdictions.chicago.predictability_pay` (1 h at regular rate per change) | **$64.20** (3 × $21.40) | Accept — 2 of the 3 are the peak-coverage fix that returns $701.34 |
+| 🔴 **Minor-labor** | J. Okonkwo (17) — Tue 15:00–22:15 | `minor_labor_rules` (encoded: no shift end after 22:00, 16–17, school-adjacent day) | — | **Blocked from auto-fill.** Shift trimmed to 15:00–21:45. ⚠️ **The agent cites the config rule, not the statute — confirm `minor_labor_rules` is current with counsel; state youth-employment law changed recently enough that a stale config here is a real liability.** |
+| ✅ Break law | All shifts ≥ 7.5 h | `state_break_rules.IL` | — | Clean |
+| ✅ CBA | Weekend rotation, rest periods | `cba_rules` | — | Clean |
+
+**Total week-29 premium-pay liability: $107.00** (vs. **$318.40** last week → **−$211.40**). The liability number is on the manager's screen *before* publish. That is the whole point of the step-4 pass.
+
+### Fairness audit (step 5) — top three equity flags
+
+1. 🔴 **Hour-distribution variance.** Among the 19 associates bidding for more hours, the top quartile averages **34.2 h/wk** and the bottom quartile **11.8 h/wk** — a 2.9× spread. `config.fairness_rules` says *opt-in pool, round-robin*; the schedule as drafted is behaving like *seniority*. **Resolve before publish.**
+2. 🟠 **High-demand-shift concentration.** **62% of Saturday-peak shifts went to 5 of 31 associates.** Saturday peak is where the incentive-eligible hours are. Round-robin the next three Saturdays.
+3. 🟠 **PT/FT parity.** 4 part-timers bidding into more hours were passed over for extras that went to full-timers already at 38 h. Contract-minimum ✓ but the parity rule ✗.
+
+Auditable inputs only. **No protected characteristic, wellness signal, or surveillance metric (keystroke, audio sentiment) entered the ranking** — and the audit records that as an assertion the merchant can defend.
+
+### Intra-week reflow rule book
+
+| Trigger | Threshold | Action options (cost shown side-by-side) | Agent's authority |
+|---|---|---|---|
+| Actuals vs. forecast | > ±18% for 2 consecutive hrs, one dept | Extend on-shift associate **with consent** ($21.40/h, **+$21.40 predictability pay** — in-window) · Offer VTO to opt-in pool (**−$21.40/h**) · Open shift in partner app ($21.40/h + $21.40) · Escalate to district | **≤ $150/day autonomous**; above → manager |
+| NCNS / call-out | Any | Opt-in pool → partner app → escalate | ≤ $150/day |
+| Weather | ≥ 8°F or ≥ 10mm swing | Fresh/grocery reflow only | ≤ $150/day |
+| Viral / social signal | Same-day traffic flag | **Manager only** — never autonomous | **$0** |
+| Surprise truck / cycle-count | Any | BOH reflow, no front-end impact | ≤ $150/day |
+
+Every option carries its **premium-pay obligation on the same line as its service-level upside**. In a Fair Workweek city a reflow is a *purchase*, not a free optimization, and the manager sees the price tag next to the benefit before choosing.
+
+### Approval-ready packet (step 7)
+
+**Header:** wage-cost 10.1% → **9.6%** projected (target 9.4%) · customer-wait P90 **6.2 min → 3.8 min** (target 4.0) · premium-pay $107.00 (vs $318.40) · fairness: **3 open flags** · **Top 3 risks:** (1) schedule is 3 days late → every change is in-window, (2) deli cross-train gap Thu, (3) hour-distribution variance is a grievance risk
+**Manager queue:** 7 open shifts · top 10 reflow options · **2 unstaffed-shift exceptions** with named blocking constraints (deli-trained ×1, key-holder Sun open ×1)
+
+### Write-back plan
+
+| Item | WFM endpoint | Draft vs. publish | Rollback |
+|---|---|---|---|
+| W29 schedule | UKG Pro WFM | **Draft only** | n/a |
+| **Publish** | UKG Pro WFM | 🔴 **Human gate — mandatory.** In a Fair Workweek jurisdiction the store leader is the scheduler of record. **The agent never auto-publishes here.** | Re-call within 30 min without premium; after that, every change bears predictability pay |
+| Reflow ≤ $150/day | UKG shift-offer API | Auto within authority | Same-shift reversal, logged |
+
+### KPI scorecard and rollback triggers
+
+Publish-on-time vs. 14-day rule · manager pre-publish edit-time · mid-shift reflow count · premium-pay $ vs. prior · wage-cost-% · customer-wait P90 · conversion delta on covered peaks · associate-sentiment pulse · fairness-audit deltas.
+**Revert to manager-only scheduling** if, for **two consecutive cycles**: false-coverage rate > 8%, premium-pay overruns budget by > 25%, or associate sentiment drops > 0.4 pts.
+
+### Config-utilization checklist
+
+`banner` ✓ · `store_directory` ✓ (#0442, urban grocery, 38k ft²) · `fair_workweek_jurisdictions` ✓ (**Chicago — 14-day notice, predictability pay, right-to-rest, all cited by key on every premium line**) · `state_break_rules` ✓ (IL) · `minor_labor_rules` ✓ (**blocked J. Okonkwo's auto-fill**) · `cba_rules` ✓ · `wage_rates` ✓ ($21.40 loaded, cashier) · `service_level_targets` ✓ (22 TPLH, 4.0-min wait) · `voice` ✓
+**Unavailable / backfill:** `fairness_rules` names *opt-in pool, round-robin* but carries no tie-break for equal-tenure bids — which is why flag #1 could be *detected* but not *auto-resolved*. Backfill the tie-break and the agent can fix hour-distribution variance instead of only reporting it.
 
 ## Notes
 

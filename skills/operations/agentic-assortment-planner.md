@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~60 min/cycle"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -83,4 +83,82 @@ You are an always-on assortment co-pilot for a retail merchandising team. Your j
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Worked example — a weekly replan on one category. Every number below is internally consistent and recomputable from the inputs shown; a real run substitutes the merchant's own feeds and `config.yml`.
+
+### Cycle header
+
+**Banner:** Northline Outfitters (140 doors, outdoor apparel & gear, ~$310M) · **Scope:** Women's Insulated Outerwear · **Period:** W28 FY26 (weekly cadence) · **Run type:** category-restricted, all door clusters
+**Data freshness:** POS through Sat W27 (2 days old, within threshold) · attribute feed current · returns feed **6 days stale** → return-rate-dependent calls are labelled MEDIUM confidence, not HIGH
+**Cluster check (step 1):** 4 clusters in input match `config.door_clusters` — Flagship Urban (12), Mall (48), Strip/Community (62), Outlet (18). ⚠️ Door #077 remodeled to Flagship format in W24 but is still tagged Mall. **Flagged before per-cluster math ran; excluded from cluster benchmarks this cycle** rather than silently mis-averaged.
+**Demand baseline:** `demand-forecasting-brief` W27 output ingested (not a naive run-rate).
+
+### Productivity-per-foot heat map (GM$/ft², trailing 13wk annualized)
+
+| Door cluster | Category cell | Cluster benchmark | σ | z | Verdict |
+|---|---|---|---|---|---|
+| Flagship Urban | $431 | $402 | $44 | **+0.66** | At benchmark — no action, don't spend cycle-time here |
+| Mall | **$268** | $358 | $46 | **−1.96** | 🔴 >1σ below — highest leverage |
+| Strip/Community | $302 | $311 | $38 | **−0.24** | At benchmark |
+| Outlet | **$214** | $289 | $41 | **−1.83** | 🔴 >1σ below — second-highest leverage |
+
+Leverage is concentrated in **Mall** and **Outlet**. Flagship and Strip are at benchmark and get HOLDs, per step 3.
+
+### Per-SKU action packet — Buyer: K. Nwosu (7 of 25-action cap; sorted by |$ impact|)
+
+| SKU | Lifecycle | Action | Units / depth | $ impact (period) | Conf. | Constraint check |
+|---|---|---|---|---|---|---|
+| W-3308 Ridge Fleece Jacket, Heather | Growth (ST 78% @ wk9, 84th pct in peer set) | **DEPTH_UP** | +18 u/door × 48 Mall doors = **864 u** | **+$52,319 GM** | HIGH | OTB ✓ · parity ✓ · planogram ✓ (absorbs the 4 facings freed by W-4471) |
+| W-4471 Alpine Down Parka, Cobalt | **Exit-candidate** (CM after returns **−$1,912**) | **EXIT** | Sell down 640 on-hand over 6 wks | **−$33,498 write-down**, stops −$1,912/period bleed, frees 4 facings | MEDIUM (stale returns feed) | Vendor contract ✓ (no mandated facings) · parity ✓ |
+| W-5102 Packable Puffer Vest | Mature | **REALLOCATE** | 1,120 u **Flagship → Strip/Community** | +$18,400 GM (avoids markdown on stranded units) | HIGH | Flagship WOS 14.2 vs target 8.0; Strip WOS 5.1 — net-neutral to OTB |
+| W-2214 Sherpa Shacket, **Sand** | Mature, **overlap 0.87** with W-2210 Oat | **DEPTH_DOWN → EXIT (Mall only)** | Cut to 0 facings in Mall; residual to Outlet | +$9,240 GM | HIGH | See overlap audit |
+| W-4890 Trail Anorak, Neon | Decline (ST −2 periods) | **MARKDOWN 22%** | All doors | −$6,100 GM, clears $41K tied-up cost | HIGH | ⚠️ parity check: 22% is **inside** the `parity_rules` ceiling (25%) |
+| *Petite-length insulated parka* | — | **ADD** (whitespace) | First buy 720 u, Mall + Flagship | +$31,900 GM (est., MEDIUM conf.) | MEDIUM | Vendor qualified (Cascade Peak) · OTB ✓ |
+| W-6001 Basecamp Parka | Mature | **HOLD** | — | $0 | HIGH | Blocked from DEPTH_DOWN — see conflict list |
+
+**Exit math shown (W-4471), since an EXIT is the one call a buyer will always challenge:** 1,180 gross units, 44% return rate → 519 returns, 661 net. Unit GM $61 ($189 retail − $128 landed — the buy came in 20 pts thin). Net-unit GM $40,321; reverse-logistics/inspect/repack 519 × $22 = $11,418; 208 returns resold at 45% off ($103.95 < $128 landed) = **−$5,002**; 311 liquidated at $45 = **−$25,813**. **Contribution margin after returns = −$1,912.** The SKU is not a markdown candidate — it is margin-negative *before* markdown, which is what distinguishes EXIT from MARKDOWN here. Sell-down: 640 on-hand at $128 basis ($81,920); staged 192 @ 40% off + 256 @ 60% off + 192 jobbed @ $38 recovers $48,422 → **$33,498 write-down**, taken once, versus an indefinite bleed.
+
+### Overlap audit
+
+| Pair | Attribute overlap | Sell-through | Verdict |
+|---|---|---|---|
+| W-2210 Sherpa Shacket **Oat** vs W-2214 **Sand** | **0.87** (color × size × price-tier × occasion) | Oat 67% / Sand **41%** | Sand is absorbed by Oat in Mall (fashion → overlap is a leak). Exit Sand from Mall; hold both in Outlet, where price-tier shoppers cross-shop colorways. |
+| W-5102 Vest **Black** vs **Charcoal** | 0.91 | 58% / 55% | **No action** — basics, both replenishment. Overlap is a *feature* here (step 4). Deliberately not recommended for exit. |
+
+### Whitespace shortlist
+
+| Candidate | Signal | Est. demand × confidence × adjacency | Verdict |
+|---|---|---|---|
+| **Petite-length insulated parka** | 1,340 site-search no-results (13wk); marketplace bestseller combo; 2 vendor-qualified sources | High × High × High | **ADD** — first buy 720 u |
+| Merino base-layer, plus-size | 310 no-results; no qualified vendor | Med × Med × **Low** | **Log for next cycle** — weak signal, not pushed |
+| "Waterproof but breathable, under $150" (AI-search query cluster) | 87 unbranded buying questions | Med × Low × Med | **Log** — restate as an attribute-tagging fix, not a buy |
+
+### Constraint conflict list — needs human policy decision (surfaced, not silently dropped)
+
+- **W-6001 Basecamp Parka — DEPTH_DOWN blocked.** Under-indexing in Outlet, but `vendor_contracts` carries a **6-facing slotting mandate (Cascade Peak, through FY26 Q4)**. The action was dropped and replaced with HOLD; the conflict goes to merch legal / vendor management, not to the buyer's action queue. Downscoped alternative already prepared: renegotiate facings at the Q4 line review.
+
+### Continuous-replan trigger rules (off-cycle rerun before next W29 cycle)
+
+| Signal | Threshold | Fires |
+|---|---|---|
+| Stockout streak, Mature SKU | > 3 days | Immediate rerun, that cluster only |
+| Sell-through delta, Growth SKU | > ±15% WoW | Rerun DEPTH_UP/DOWN on that peer set |
+| Confirmed vendor delay | > 10 days | Rerun ADD + REALLOCATE |
+| Competitor markdown | deeper than 25% on a matched SKU | Rerun MARKDOWN, route through `competitive-price-check` first |
+| Weather outlook | ≥ 2σ off normal (outerwear = weather-elastic) | Rerun full category |
+
+Thresholds tuned against `config.service_level_target` (97%) and the merchant's stated tolerance for re-papering store teams (**max 1 off-cycle rerun/month** — so the triggers are deliberately loose, not maximally sensitive).
+
+### Write-back plan and rollback windows
+
+| Action | Writes into | Rollback window | Gate |
+|---|---|---|---|
+| ADD (petite parka) | PIM | 14-day check-back: auto-flag if week-2 ST < 35% | Buyer approve |
+| DEPTH_UP / DEPTH_DOWN | Planogram tool | Next planogram refresh (4 wks) | Buyer approve |
+| MARKDOWN | Merchandising hub | 7-day: auto-flag if unit velocity lift < 1.5× | Buyer approve |
+| REALLOCATE | Allocation engine | 10-day (transit + 3) | Auto (reversible) |
+| **EXIT (W-4471)** | PIM + merch hub | **None — irreversible** | **Explicit human approval gate. Merch director sign-off required.** The agent does not exit a SKU. |
+
+### Config-utilization checklist
+
+`door_clusters` ✓ (4 clusters, mismatch on #077 flagged) · `category_taxonomy` ✓ · `attribute_dictionary` ✓ (overlap scoring) · `open_to_buy` ✓ (**$106,128 of $180,000 headroom = 59%** if all adds approved) · `parity_rules` ✓ (25% markdown ceiling) · `vendor_contracts` ✓ (Cascade Peak slotting mandate caught) · `service_level_target` ✓ (97%) · `brand.voice` ✓
+**Unavailable / backfill:** `attribute_dictionary` has no `fit_length` attribute — which is why the petite whitespace had to be found through search logs instead of the taxonomy. **Backfill this before the next cycle**; it is the single field that would have surfaced the largest ADD candidate automatically.

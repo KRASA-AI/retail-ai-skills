@@ -1,0 +1,19 @@
+skill: agentic-retail-media-mediation
+file: skills/sales/agentic-retail-media-mediation.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 7
+  specificity: 8
+  industry_fit: 9
+  output_quality: 6
+  personalization: 8
+  efficiency: 6
+overall: 7.4
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Example Output is a placeholder -- every artifact (inventory map, bid-floor table, disclosure matrix, drift scorecard) is specified but never demonstrated, so no operator can see the max(reserve, comparable, yield-protection floor) formula worked through (output_quality 6). Punishing sentence density: 'When to Use' and steps 9/14 are single 150+ word run-ons (clarity 7, efficiency 6). Deep current fluency (FTC July 2026 accuracy-suppression theory, DSA Art. 26/39, AP2/MAAI, Topsort Sponsored Prompts)."

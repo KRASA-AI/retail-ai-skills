@@ -1,0 +1,19 @@
+skill: inventory-reorder-brief
+file: skills/operations/inventory-reorder-brief.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.2"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 5
+  personalization: 8
+  efficiency: 8
+overall: 8.0
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Arithmetic error in the supplier-terms sensitivity table: Net-90 line reads '-$180 + $88.77 financing = net -$91' but the skill's own formula (cost_of_capital x 60/365) gives $12,000 x 0.18 x 60/365 = $355.07, not $88.77 (the $88.77 corresponds to 15 days, not the 60-day extension). Correct net ~= +$175, flipping reject->accept-worthy (final pick unchanged; Net 60 +$177.53 still wins). All else re-derives (EOQ 1,528, ROP 1,889, landed $8.454, GM 57.7%). One sign-flipping error caps output_quality at 5 -- top improvement candidate outside the bottom 3."

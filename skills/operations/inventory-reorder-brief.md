@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~15 min/review"
-version: 2.1
+version: 2.2
 last_eval_score: 4.4
 ---
 
@@ -122,4 +122,60 @@ You are a retail inventory-planning AI assistant who treats each reorder as a wo
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** SKU `TUMB-30-SS` (*Stainless Tumbler 30oz*, A-item). On-hand sellable 1,400; on-order 0; committed 0. Net velocity mean 40 units/day, daily σ 8. Supplier: China-sourced, FOB $6.00/unit, MOQ 1,000, case-pack 250, ocean lead time 45 days, freight breakpoint at 2,000 units (LCL $0.95/unit → FCL flat $1,100/container up to 2,400). HS 7323.93 (MFN 3.4%; Section 301 List 3 → 25%). Retail $19.99. `service_level_target` 0.95, `holding_cost_pct` 0.25, `cost_of_capital_pct` 0.18, `gross_margin_floor` 0.55, review period 7 days, OTB $250,000, cash-flow preference = healthy (not gating).
+
+**Velocity & class:** CV = 8 / 40 = **0.20 < 0.25 → X-class** (steady; tight ROP, JIT-leaning). Recent-4-wk vs trailing-12-wk within ±30% — no signal flag.
+
+**Days of supply & exposure window:** days_of_supply = 1,400 / 40 = **35 days**. Exposure window = lead_time 45 + review 7 − 35 = **+17 days → 🔴 critical** (will stock out ~17 days before the next replenishment cycle lands). On-hand 1,400 **< ROP 1,889** → buy now.
+
+**Reorder point (95% SL, Z = 1.65):** safety_stock = 1.65 × 8 × √45 = **89 units**. ROP = (40 × 45) + 89 = **1,889 units**.
+
+**Order quantity — EOQ vs MOQ vs freight-break:**
+
+| Candidate | Formula | Qty |
+|---|---|---|
+| EOQ | √(2 × 14,600 × 120 / (6.00 × 0.25)) | 1,528 |
+| MOQ-rounded | ⌈1,528 / 250⌉ × 250 | 1,750 |
+| Freight-break (FCL) | smallest qty hitting the container breakpoint | 2,000 |
+
+**Recommended: 2,000 (FCL).** LCL freight on the 1,750 order = 1,750 × $0.95 = **$1,662.50**; the 2,000-unit FCL is a flat **$1,100** ($0.55/unit). Ordering *more* costs **$562.50 less** total freight, and the 250 extra units clear in ~6.25 days → incremental carrying ≈ **$6** — immaterial against the freight saving. Net freight-break benefit ≈ **+$556**.
+
+**Landed-cost-per-unit build (@ 2,000):**
+
+```
+FOB unit cost                         6.000
++ freight/unit (FCL $1,100 / 2,000)   0.550
++ MFN duty (6.00 × 3.4%)              0.204
++ Section 301 surcharge (6.00 × 25%)  1.500
++ broker/customs                      0.080
++ insurance                           0.030
++ DC receiving/put-away               0.120
++ demurrage/detention amort.          0.020
+− supplier rebate                    -0.050
+= landed cost / unit                  8.454  ≈ $8.45
+```
+
+Gross margin @ $19.99 = (19.99 − 8.45) / 19.99 = **57.7% > 55% floor → passes**. But Section 301 alone costs **7.5 margin points** (landed would be $6.95 / GM 65.2% without it) → **flag for tariff engineering** (HS-code review, country-of-origin shift, FTZ/drawback) before the *next* buy even though this PO clears the floor.
+
+**Supplier-terms sensitivity** (invoice = 2,000 × $6.00 = $12,000; cost of capital 18%):
+
+| Term | $-impact | Verdict |
+|---|---|---|
+| Net 30 (baseline) | 0 | — |
+| **Net 60** | +$12,000 × 0.18 × 30/365 = **+$177.53** free financing | **✅ take** (no price increase) |
+| Net 10 / 2% early-pay | save $240 − early-pay cost $115.99 = +$124.01 | second-best |
+| Net 90 / 1.5% surcharge | −$180 + $88.77 financing = net −$91 | reject (cash not gating) |
+
+Recommend **Net 60** ($177.53 > $124.01 early-pay). Route the early-pay option to AP as fallback if the supplier ties a price bump to Net 60.
+
+**Working-capital & OTB:** PO landed value = 2,000 × $8.45 = **$16,908** ($12,000 invoice). Adds **50 days-of-supply** of this SKU. Taking Net 60 extends DPO 30→60 days, offsetting ~30 of those DIO-days → **CCC roughly flat** on this line. OTB consumption = $12,000 invoice = **4.8%** of the $250k period budget (6.8% at landed).
+
+**Reorder table (this SKU):**
+
+| SKU | Supplier | On-hand | DoS | Exp. win | ROP | Rec. qty | Choice | Landed/unit | PO value | PO-by | Flag |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TUMB-30-SS | Shenzhen Vac | 1,400 | 35d | +17d | 1,889 | 2,000 | FCL freight-break | $8.45 | $16,908 | **today** (45-day LT vs 35 DoS) | 🔴 |
+
+**Internal handoff:** *Send EDI 850 today, 2,000 units FCL, Net 60, ETA ≈ 52 days (45 LT + 7 receiving). Buyer: request DDP quote next cycle and open an HS-code/origin review — Section 301 is costing 7.5 GM points.* Reorder version `iro-v2.1-2026-07-06`.
+
+**Config-utilization checklist:** ✅ `service_level_target` (0.95 → Z 1.65) · ✅ `holding_cost_pct` (0.25 → EOQ) · ✅ `cost_of_capital_pct` (0.18 → terms sensitivity) · ✅ `suppliers.list` (MOQ 1,000 / case 250 / LT 45 / freight breakpoint) · ✅ `tariffs.section_301_in_scope` (List 3 25%) · ✅ `tariffs.hs_code_overrides` (7323.93) · ✅ `pricing.gross_margin_floor` (0.55) · ✅ `cashflow.target_dso_dpo_dpio` (DPO 30→60). Missing: `dc_locations` (single-DC assumed — backfill if multi-node).

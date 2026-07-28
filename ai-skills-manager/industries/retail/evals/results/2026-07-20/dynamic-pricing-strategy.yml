@@ -1,0 +1,19 @@
+skill: dynamic-pricing-strategy
+file: skills/operations/dynamic-pricing-strategy.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.2"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 9
+overall: 8.8
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Minor rounded-units-vs-revenue mismatch in the scenario grid: '73 | Rev/wk $4,813' but 65.99 x 73 = $4,817 (the $4,813 only reconciles with unrounded 72.9 units); Recommended '82/wk' vs $4,729 needs 81.5. Core math correct (-25.65% depth, 81.5 units, $23.99/41.4% margin, WOS 8.8). output_quality 8."

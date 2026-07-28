@@ -1,0 +1,19 @@
+skill: customer-service-reply
+file: skills/customer-service/customer-service-reply.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "3.3"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 9
+  output_quality: 7
+  personalization: 8
+  efficiency: 8
+overall: 8.0
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No numeric errors, but the cross-referenced dependency is version-pinned three different ways in one file -- 'return-policy-explainer v2.1' (step 5), 'v2.2' (step 1), 'v2.3' (worked example) -- while the actual file is v2.6, so every pin is stale (the 'wrong section' failure mode). The worked example asserts a $240 reship is 'within cap' via per_channel_gesture_limits x gold 1.25 but never shows the cap number, so the gesture math isn't self-proving. output_quality 7."

@@ -1,0 +1,19 @@
+skill: promotion-campaign-builder
+file: skills/sales/promotion-campaign-builder.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.2"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "One labeling error: 'Baseline 500 units -> 700 incremental units' mislabels the 1.40x result -- 700 is TOTAL lifted units (500 x 1.40), the true incremental is 200. Downstream revenue (700 x $90 = $63,000) and CM (700 x $28 = $19,600 = 31.1%) correctly treat 700 as total, so numbers reconcile but the word 'incremental' contradicts them. All other math correct (margin (90-58-4)/90 = 31.1% PASS, email funnel ~43 orders, A/B ~5,131/arm). output_quality 8."

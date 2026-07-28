@@ -4,7 +4,7 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~75 min/program design"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -101,7 +101,45 @@ You are a clienteling-program designer working at the intersection of store oper
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run. **Input:** 60-store specialty apparel banner, $180M annual revenue, identified-customer share 42%, top-decile customers = 45% of identified revenue. Selected platform: **Endear** (Shopify POS-native). Associate model: 3 clienteling associates/store, tenure mix. `clienteling.attribution_window_days` = 14; `consent_regime` covers US (CA, NY, IL, TX, WA) + Quebec; `experimentation.holdout_pct` = 8%; GM 58%; `brand.voice` = warm-concise; jurisdictions include two-party-consent states (CA, IL, WA) and Quebec Law 25.
+
+**Frame the prize & the floor:** identified revenue = $180M × 42% = **$75.6M**. Identified-customer share **42% ≥ 35% specialty floor → proceed** (do *not* defer to a `personalization-strategy` one-to-many program). Reachable top-decile base = $75.6M × 45% = **$34.02M**. Modeled program: 60% cohort reach × a conservative **+8% spend lift** (well below Tulip's cited +63%, which is vendor-selected and un-holdout-controlled) →
+
+```
+incremental revenue  = $34.02M × 0.60 reach × 0.08 lift = $1.633M
+incremental margin    = $1.633M × 58% GM               = $0.947M
+− program cost (Endear platform $180k + associate time $420k) = $0.600M
+= net margin contribution                                = ~$347K/yr
+```
+
+Flag: the payback is real but thin at +8%; the holdout (below) is what proves the lift is incremental rather than pull-forward.
+
+**Associate data-access model (excerpt):**
+
+| Role tier | Sees | Excluded |
+|---|---|---|
+| Associate-baseline | name, preferred channel, opt-in status, last visit/purchase, top-3 affinity, loyalty tier, language, accessibility flag | payment beyond last-4, credit status, biometrics, protected-class inferences, margin/cost |
+| Appointment specialist | + full purchase/returns history, fit/size profile, open tickets, NBA queue | (same exclusions) |
+| Manager | + churn-risk score, LTV band, segment membership, attribution-window override | (same exclusions) |
+
+Tied to existing RBAC + the CCPA/Law-25 DSAR pipeline.
+
+**Segmentation × trigger matrix (sample rows):**
+
+| Segment | Trigger | Channel (+fallback) | AI-draft posture | Owner | Suppression |
+|---|---|---|---|---|---|
+| Top-decile VIP | pre-collection-launch | SMS → email | full draft, associate reviews | last-served associate | quiet-hours; ≤ 2 touches/14d |
+| Lapsing 61–90d | win-back | email → SMS | full draft | segment owner | not if open ticket |
+| Replenishment-due | replenishment | SMS → email | outline only | last-served associate | frequency cap |
+| Quebec residents | any | per Law 25 | fr-CA default, explicit consent | segment owner | no send without French opt-in |
+
+**Attribution & double-credit:** associate-touch window **14 days** (specialty); last-touch within window, associate touch outranks marketing channel. **Double-credit rule vs `promotion-campaign-builder`:** if a customer received both a one-to-one clienteling touch and a one-to-many campaign in the same window → **credit the one-to-one touch, suppress the one-to-many credit** (applied consistently). Incrementality: **8% permanent holdout** of the eligible clienteling population, slow-rotated so no customer is permanently under-served; report incremental revenue/margin, response rate, opt-out rate, attach rate, ATV vs holdout.
+
+**Consent/fairness guardrails (excerpt):** TCPA express written consent for SMS; CASL/GDPR-style express opt-in for CA/EU even where TCPA would permit implied; two-party-consent per-session capture for any voice clienteling in CA/IL/WA; Quebec Law 25 French-consent capture; **no segmentation on inferred income from ZIP/surname**; quarterly outreach-frequency-disparity audit with a named owner; DSAR deletion propagates from the master queue to Endear within the strictest applicable window.
+
+**Rollout:** shadow mode (associates draft, platform does not send, supervisor grades) → 4 pilot stores (1 urban / 1 suburban, 1 veteran team / 1 high-turnover) → regional expansion behind a 60-day readout gate → full chain. Rollback window 24 hrs (1 hr for a consent/regulated incident). Kill switch: if opt-out rate, response rate, CSAT, or the fairness audit regress past threshold for two consecutive weeks, the region reverts to the prior matrix and a named owner runs the diff.
+
+**Config-utilization checklist (17 fields):** ✅ `brand.banner` · ✅ `store_format` (specialty) · ✅ `clienteling.platform` (Endear) · ✅ `clienteling.associate_data_access` · ✅ `clienteling.segment_owners` · ✅ `clienteling.channels` (quiet-hours) · ✅ `clienteling.attribution_window_days` (14) · ✅ `consent_regime` · ✅ `audience_segments` · ✅ `loyalty.tiers` · ✅ `escalation_thresholds` · ✅ `jurisdictions` (incl. Quebec, two-party states) · ✅ `regulated_categories` · ✅ `brand.voice` · ✅ `brand.disallowed_phrases` · ✅ `audit.retention_days` (≥ 12 mo TCPA) · ✅ `fairness_constraints`. No fields missing — configured for chain rollout.
 
 ## Notes
 

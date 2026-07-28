@@ -1,0 +1,29 @@
+skill: virtual-try-on-fit-confidence
+file: skills/sales/virtual-try-on-fit-confidence.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+version_before_improvement: "1.0"
+previous_score: null
+graded_cold: true
+scores_before_improvement:
+  clarity: 8
+  specificity: 6
+  industry_fit: 8
+  output_quality: 6
+  personalization: 7
+  efficiency: 7
+overall_before_improvement: 7.0
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 8
+  output_quality: 9
+  personalization: 7
+  efficiency: 7
+overall: 8.0
+delta_vs_pre_improvement: 1.0
+improvement_candidate: true
+improvement_applied: true
+replaced_original: true
+note: "IMPROVED. Cold grade 7.0. Two defects: (1) key thresholds were symbolic -- rollback 'customer-complaint rate > X%' and no numeric cut lines for the Now/Next/Later/Skip eligibility tiers, forcing the model to invent the decisive numbers (specificity 6); (2) Example Output was an unfilled placeholder, and even the promised in-text example schema was never rendered (output_quality 6). v1.1 adds a 0-100 four-factor eligibility scoring formula (fit-return sensitivity 40 / POM data 25 / image consistency 20 / consent coverage 15) with explicit tier cut lines (Now >= 60 and fit-return >= 12%; Next; Later 6-12%; Skip < 6%), sets concrete rollback thresholds (complaint > 2% over 7 days, cohort gap > 10 pts), and writes a full worked audit for 'Northbourne' (6 sub-classes scored in a reconciling table, pattern-selection, a JSON fit-signal schema, diversity/consent/measurement plans, and an assistant-eligibility table). The power calc (24%->21%, 80% power -> ~3,000/cell) was re-derived and corrected from a first draft. specificity 6->8, output_quality 6->9. 7.0 -> 8.0 (+1.0)."

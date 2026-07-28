@@ -1,0 +1,29 @@
+skill: brand-agent-authoring
+file: skills/sales/brand-agent-authoring.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.2"
+version_before_improvement: "1.1"
+previous_score: null
+graded_cold: true
+scores_before_improvement:
+  clarity: 6
+  specificity: 7
+  industry_fit: 9
+  output_quality: 6
+  personalization: 8
+  efficiency: 6
+overall_before_improvement: 7.0
+scores:
+  clarity: 8
+  specificity: 7
+  industry_fit: 9
+  output_quality: 9
+  personalization: 8
+  efficiency: 7
+overall: 8.1
+delta_vs_pre_improvement: 1.1
+improvement_candidate: true
+improvement_applied: true
+replaced_original: true
+note: "IMPROVED. Cold grade 7.0. Two defects: (1) step 9 ('Buyer-side-agent asymmetry...') was one ~450-word run-on sentence stuffing sub-items (i)-(vii) incl. model-tier floors and fleet metrics into a single unbroken clause a new operator could not parse into discrete actions (clarity 6); (2) Example Output was an unfilled placeholder (output_quality 6). v1.2 restructures step 9 into seven discrete, independently testable lettered clauses (no content removed) and writes a full worked packet for a home-fragrance brand ('Lumi' for Lumen & Wick) demonstrating all 13 output sections -- persona spec (runtime + human-readable), grounding table, FAQ leaf, refusal-tier matrix, regulated-category guardrails, buyer-side floor/model-tier/fleet-monitor, and a config-utilization checklist that binds $75 self-serve + 365-day retention and flags the absent clienteling.segment_owners. Also added a Fastest-path minimum-viable-input block (efficiency 6->7). clarity 6->8, output_quality 6->9. 7.0 -> 8.1 (+1.1)."

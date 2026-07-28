@@ -1,0 +1,29 @@
+skill: product-description-writer
+file: skills/sales/product-description-writer.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.3"
+version_before_improvement: "2.2"
+previous_score: null
+graded_cold: true
+scores_before_improvement:
+  clarity: 8
+  specificity: 8
+  industry_fit: 7
+  output_quality: 6
+  personalization: 8
+  efficiency: 7
+overall_before_improvement: 7.3
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 8
+  output_quality: 9
+  personalization: 8
+  efficiency: 7
+overall: 8.1
+delta_vs_pre_improvement: 0.8
+improvement_candidate: true
+improvement_applied: true
+replaced_original: true
+note: "IMPROVED. Cold grade 7.3. Two defects: (1) Example Output was an unfilled placeholder (output_quality 6); (2) Required Input #7 cited 'COSRA for cosmetics', which is not a real regime -- the correct rule is MoCRA, used correctly elsewhere in the same file (industry_fit 7). v2.3 fixes COSRA->MoCRA and writes a complete worked listing: a Volare Lite travel stroller with an Amazon title (128/200 chars, verified), Shopify SEO title (57/70), 5 CAPS-label bullets, a 168-word long-form, a 156-char meta, alt text, a 5-pair conversational Q&A, the six Google Merchant Center Conversational Attributes, a 16/18 Schema.org block with the 2 missing fields flagged, a keyword map, a compliance log, and an internal handoff -- all internally consistent (char counts re-verified with wc -m). output_quality 6->9, industry_fit 7->8. 7.3 -> 8.1 (+0.8)."

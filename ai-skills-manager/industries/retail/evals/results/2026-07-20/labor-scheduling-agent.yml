@@ -1,0 +1,19 @@
+skill: labor-scheduling-agent
+file: skills/operations/labor-scheduling-agent.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors: payroll+GM prize ($1,169.74; x52 ~= $60,826), under-coverage cost ($701.34), clopen premium ($42.80) all check. Minor logical wrinkle: surfaced week-29 liability ($107.00) includes the $42.80 clopen premium the recommendation reassigns to avoid, so it reads as gross exposure not post-recommendation."

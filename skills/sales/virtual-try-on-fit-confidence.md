@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~45 min/audit"
-version: 1.0
-last_eval_score: null
+version: 1.1
+last_eval_score: 8.0
 ---
 
 # 👕 Virtual Try-On & Fit Confidence Audit
@@ -44,7 +44,14 @@ You are a retail fit-confidence and virtual-try-on program advisor for a merchan
 
 **Process:**
 
-1. **Eligibility tiering by sub-class** — Score each catalog sub-class on (a) return-rate sensitivity to fit, (b) availability of point-of-measure data, (c) image consistency for on-model generation, and (d) consent-regime coverage. Tier into Now (high-return + good data), Next (high-return but data gaps), Later (lower-return), and Skip (categories where VTO won't move the needle — e.g., commodity socks, hardware adjacent SKUs). Build the rollout sequence from the Now tier first.
+1. **Eligibility tiering by sub-class** — Score each catalog sub-class 0–100 on four weighted factors, then tier by the score and the fit-return gate:
+
+   - **(a) Fit-return sensitivity — 40 pts:** fit-coded return rate. Score = min(40, fit_return_rate% × 2). So a 20% fit-return sub-class scores the full 40; 10% scores 20.
+   - **(b) Point-of-measure data availability — 25 pts:** full POM file per size = 25; size chart only = 12; region-convention label only = 5; none = 0.
+   - **(c) Image consistency for on-model generation — 20 pts:** consistent PDP hero + full size run = 20; partial = 10; inconsistent/user-generated only = 0.
+   - **(d) Consent-regime coverage — 15 pts:** consent flow live in all in-scope biometric jurisdictions = 15; partial = 7; none where camera capture is proposed = 0.
+
+   **Tier cut lines:** **Now** = score ≥ 60 **and** fit-return rate ≥ 12%; **Next** = fit-return rate ≥ 12% but score < 60 (high need, data/consent gaps to close first); **Later** = fit-return rate 6–12%; **Skip** = fit-return rate < 6% or a category where VTO won't move the needle (commodity socks, hardware-adjacent SKUs). Build the rollout sequence from the Now tier first, highest score first.
 
 2. **Pattern selection per sub-class** — Match the right VTO / fit pattern to each Now-tier sub-class:
    - **Garment-vs-body comparison** for apparel where size-chart confusion drives most returns (bring-your-own-fit-profile + comparison to a garment of theirs that fits)
@@ -63,7 +70,7 @@ You are a retail fit-confidence and virtual-try-on program advisor for a merchan
 
 7. **Inline-on-AI-surface eligibility audit** — For each target assistant from `config.yml → target_assistants`, list what the merchant must do to be eligible to surface VTO inline. For Google Shopping post-April 30, 2026 (the Doppl-to-Search migration date), confirm Merchant Center feed has the required image plurality, GTIN accuracy, and category-tree depth. For Perplexity Shop and ChatGPT shopping, confirm the agent-readable PDP from `agentic-commerce-readiness` exposes the fit signals from step 3. Flag any assistant where the merchant is not yet eligible and what blocks them.
 
-8. **Rollout sequencing and rollback triggers** — Sequence by Now-tier sub-class, capacity of the implementing team, and platform readiness. Start with one sub-class × one assistant surface to prove the measurement loop, then fan out. Define rollback triggers: customer-complaint rate from the VTO experience > X%, accessibility complaint, an assistant cites a fit signal incorrectly, a model-library bias flag, or a consent / privacy issue. Keep size-recommendation fallback always-on so a rollback doesn't degrade the PDP back to a 2024 experience.
+8. **Rollout sequencing and rollback triggers** — Sequence by Now-tier sub-class, capacity of the implementing team, and platform readiness. Start with one sub-class × one assistant surface to prove the measurement loop, then fan out. Define rollback triggers with concrete thresholds (tune to the merchant's baselines, but ship with these defaults): VTO-experience customer-complaint rate **> 2%** of VTO sessions over a rolling 7-day window; **any** verified accessibility complaint (WCAG-blocking); **any** confirmed instance of an assistant citing a fit signal incorrectly; a model-library bias flag where a covered body-type cohort's satisfaction trails the mean by **> 10 pts**; or **any** consent / privacy issue. A red trigger reverts the sub-class to the always-on size-recommendation fallback within the rollback window and pages the named owner. Keep size-recommendation fallback always-on so a rollback doesn't degrade the PDP back to a 2024 experience.
 
 9. **Vendor neutrality and exit plan** — Whatever vendor or in-house pattern is used, require: (a) measurement data flows to the merchant's warehouse, not just the vendor's dashboard; (b) the merchant owns the fit profile and consent records; (c) point-of-measure dictionary is portable; (d) assistant-facing structured data sits on the merchant's domain; (e) a documented exit and migration path. Avoid lock-in on a vendor whose contract claims joint ownership of customer-fit data.
 
@@ -87,4 +94,58 @@ You are a retail fit-confidence and virtual-try-on program advisor for a merchan
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+**Input (abbreviated):** *Northbourne* — mid-market apparel + footwear DTC on Shopify. In scope: women's denim, women's dresses, men's footwear, bras/activewear, men's tees, socks. Biometric jurisdictions in customer base: IL, TX, WA, CO, OR. Target assistants: Google Shopping (inline VTO), Perplexity Shop. Config present: `accessibility_minima`, `consent_regimes`, `target_assistants`. Trailing-12-mo fit-coded return rates supplied per sub-class.
+
+---
+
+**1. Eligibility tiering (scored per step 1)**
+
+| Sub-class | Fit-return | (a) ≤40 | (b) ≤25 | (c) ≤20 | (d) ≤15 | Score | Tier |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Women's denim | 24% | 40 | 25 (full POM) | 20 | 7 | **92** | Now |
+| Men's footwear | 15% | 30 | 25 (last specs) | 20 | 7 | **82** | Now |
+| Women's dresses | 19% | 38 | 12 (chart only) | 20 | 7 | **77** | Now |
+| Bras / activewear | 22% | 40 | 12 | 0 (inconsistent) | 0 (no camera consent) | **52** | Next |
+| Men's tees | 8% | 16 | 12 | 20 | 7 | 55 | Later |
+| Socks | 3% | 6 | — | — | — | — | Skip |
+
+Denim leads the Now rollout (highest score, highest fit-return). Bras/activewear has the need (22%) but is gated **Next** until camera-consent flow ships in IL/TX/WA/CO/OR and PDP imagery is standardized.
+
+**2. Pattern selection (Now tier)**
+
+| Sub-class | Pattern | Why |
+|---|---|---|
+| Women's denim | Garment-vs-body comparison | Size-chart confusion drives returns; compare to a pair the shopper already owns |
+| Women's dresses | On-model generation | Shoppers want drape on a body type near theirs |
+| Men's footwear | Semantic body model | Last shape / toe box / instep beats 2D imagery |
+| *(all)* | Size-recommendation engine | Always-on fallback beneath every richer pattern |
+
+**3. AI-surface fit-signal spec (denim, one SKU)**
+
+```json
+{ "additionalProperty": [
+  { "name": "fitAdvice", "value": "runs-small", "sampleSize": 1840 },
+  { "name": "shoulderFit", "value": "true-to-size" },
+  { "name": "waistPOM_in", "value": "28–29 at size 28" } ],
+  "sizeSystem": "US", "sizeGroup": "womens" }
+```
+Fit-note derivation: mine ≥ 500 fit-coded reviews per SKU; publish a signal only above that sample floor. Pair with the `agentic-commerce-readiness` AEO/GEO layer so an assistant answering "does this run small?" cites Northbourne's own data (1,840-review basis) instead of third-party reviews.
+
+**4. Diversity & accessibility audit:** on-model library covers 4 body types / 5 skin tones; **gap** — no adaptive/seated representation and no > size-18 dress model. Graceful fallback wired: any shopper the library doesn't cover sees "your body type isn't in our library yet — here's our size-chart predictor" rather than a mismatched render. Diversity targets logged as auditable, not aspirational.
+
+**5. Consent & retention:** denim/dresses use garment-comparison + size-recommendation only — **no biometric capture**, so no opt-in gate. Bras/activewear camera capture (when it ships) requires IL BIPA / TX CUBI / WA HB1493 / CO / OR opt-in, 12-mo retention max, one-tap deletion routed to the existing CCPA/GDPR DSR workflow, proof-of-consent stored. Under-18: camera gated behind parental consent.
+
+**6. Measurement plan:** SKU-stratified holdout — half of Now-tier denim SKUs get VTO, matched-comparable denim SKUs stay pre-VTO. Pre-registered primary metric: **fit-coded return rate within 60 days of purchase.** Guardrails: conversion, AOV, refund-vs-exchange split, CS contact rate, accessibility-complaint rate. Power note: at a 24% base fit-return rate, detecting a 3-pt absolute reduction (24%→21%) at 80% power / α=0.05 (two-sided) needs ≈ 3,000 orders per cell.
+
+**7. Inline-on-AI-surface eligibility**
+
+| Assistant | Status | Blocker / owner |
+|---|---|---|
+| Google Shopping (inline VTO, post-Apr 30 2026) | Eligible after feed fix | Needs ≥ 3 images/SKU + GTIN accuracy — Merch |
+| Perplexity Shop | Blocked | Agent-readable PDP fit signals (step 3) not yet live — Web eng |
+
+**8. Rollout & rollback:** start denim × Google Shopping to prove the loop, then footwear, then dresses; 2-week soak each. Rollback if VTO-complaint rate > 2% (7-day), any WCAG-blocking accessibility complaint, any confirmed assistant mis-cite, a cohort satisfaction gap > 10 pts, or any consent issue — reverting that sub-class to the always-on size-recommendation fallback.
+
+**9. Vendor neutrality:** measurement data lands in Northbourne's warehouse (not vendor-only); merchant owns fit profiles + consent records; POM dictionary portable; assistant-facing structured data on `northbourne.com`; documented exit path — no joint-ownership clause on customer-fit data.
+
+**Config-utilization checklist:** applied `accessibility_minima`, `consent_regimes`, `target_assistants`. Flagged for backfill: `point_of_measure_dictionary` partial (dresses chart-only), `fit_taxonomy` absent.

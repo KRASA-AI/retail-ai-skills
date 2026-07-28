@@ -1,0 +1,19 @@
+skill: distributed-order-allocation
+file: skills/operations/distributed-order-allocation.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 7
+  personalization: 9
+  efficiency: 8
+overall: 8.5
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Consistency defect in the approval packet: exception-class line items (17,932 clean + 214 threshold + 138 split + 220 cross-border + 31 unrouted = 18,535) exceed the header's stated 18,400 order lines, and the reviewer-cap note says '553 exceptions' where the reviewer-action classes (214+138+220+31) sum to 603. Per-line scoring tables and the $3.78M net all re-derive correctly. output_quality capped at 7 by the packet-total inconsistency."

@@ -1,0 +1,19 @@
+skill: competitive-price-check
+file: skills/operations/competitive-price-check.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "2.3"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors: Backcountry 179 - 35.80 + 11.89 = $155.09, gap -20.0%, urgency 10.0, match margin 39.4% > 38% floor; Amazon -11.2%, $10 below $169 MAP -- all verify. Exemplary config binding (all 8 fields enumerated with absence-handling). Only a single-SKU example limits it from a 9-tier ceiling."

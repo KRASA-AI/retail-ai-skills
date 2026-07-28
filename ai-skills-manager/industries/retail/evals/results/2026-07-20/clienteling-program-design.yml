@@ -1,0 +1,19 @@
+skill: clienteling-program-design
+file: skills/sales/clienteling-program-design.md
+date: 2026-07-20
+first_eval: true
+version_evaluated: "1.1"
+previous_score: null
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 9
+  industry_fit: 8
+  output_quality: 9
+  personalization: 9
+  efficiency: 7
+overall: 8.4
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors -- worked example re-derives ($180M x 42% = $75.6M, x 45% = $34.02M, x 0.60 x 0.08 = $1.633M, x 58% = $0.947M, - $0.600M = ~$347K/yr). Regulatory mislabel: step 7 and Notes call the automated-decision-making right 'EU AI Act Article 22' but Article 22 is GDPR (required-input #6 correctly says GDPR Art. 22; the AI Act transparency rule is Art. 50). industry_fit 8. Efficiency (7): 8-part required-input block is a heavy interrogation."
