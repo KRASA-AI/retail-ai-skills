@@ -1,0 +1,19 @@
+skill: distributed-order-allocation
+file: skills/operations/distributed-order-allocation.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.5
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 7
+  personalization: 9
+  efficiency: 8
+overall: 8.5
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Re-summed the approval-ready packet table (still unchanged, v1.1): 17,932 clean + 214 threshold-bumping + 138 split + 220 cross-border + 31 unrouted = 18,535 order lines, vs the cycle header's stated 18,400 -- a 135-line discrepancy, unfixed since last cycle. The '553 exceptions' cap note still doesn't reconcile: the reviewer-action classes (214+138+220+31) sum to 603, not 553. All per-line cost/carbon scoring, the $3.78M prize buildup, and the sell-down math re-derive cleanly. output_quality held at 7 for the unreconciled packet totals."

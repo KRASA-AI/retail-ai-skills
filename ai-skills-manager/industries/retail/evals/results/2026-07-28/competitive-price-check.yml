@@ -1,0 +1,19 @@
+skill: competitive-price-check
+file: skills/operations/competitive-price-check.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.3"
+previous_score: 8.9
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Re-derived every figure cold: Backcountry landed 179 - 35.80 + 0 + 11.89 = $155.09, gap vs. your $193.86 landed = -20.0%, urgency 20 x (1/2) = 10.0, match margin (155.09-94)/155.09 = 39.4% (above 38% floor); Amazon landed 159+13.20 = $172.20, gap -11.2%, $10 below the $169 MAP floor. All check exactly, no errors. Config binding remains exemplary across all 8 named fields; still limited to a single-SKU worked example."

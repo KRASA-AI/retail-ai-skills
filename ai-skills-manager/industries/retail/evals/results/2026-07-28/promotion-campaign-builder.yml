@@ -1,0 +1,19 @@
+skill: promotion-campaign-builder
+file: skills/sales/promotion-campaign-builder.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.2"
+previous_score: 8.7
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 7
+  personalization: 9
+  efficiency: 8
+overall: 8.5
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Unchanged since 2026-07-20 (still v2.2). The flagged 'Baseline 500 units -> 700 incremental units' mislabel is still present (true incremental is 200; downstream revenue $63,000 and CM $19,600/31.1% still correctly treat 700 as the total, so the label contradicts the math it sits next to). Cold re-derivation this cycle also found a new, previously-uncaught defect: the SMS example is captioned '(148 chars)' but scripted len() of the exact quoted string is 110 characters -- a real miscount, not just a labeling slip. A/B sample size (~5,131/arm) and margin math (31.1%) both re-verify correctly. Two compounding numeric defects in the same worked example moves output_quality from 8 to 7 (8.7 -> 8.5)."

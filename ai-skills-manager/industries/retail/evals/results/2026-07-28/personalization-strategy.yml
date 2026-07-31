@@ -1,0 +1,19 @@
+skill: personalization-strategy
+file: skills/sales/personalization-strategy.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.3"
+previous_score: 9.1
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 10
+  personalization: 9
+  efficiency: 8
+overall: 9.1
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Unchanged since 2026-07-20 (still v1.3). Independently re-derived every headline number by script: $48.0M x 14% = $6.72M; +6pts to 20% = $9.60M target, gross delta $2.88M, x0.5 incrementality = $1.44M; RPS = $48.0M/12.0M = $4.00 exactly; two-proportion MDE calc for +3% relative lift (2.40%->2.472%) = 719,679/arm, matching the stated '~719K/arm' and '~6.2 weeks.' Zero arithmetic defects found -- still the strongest worked example in the batch."

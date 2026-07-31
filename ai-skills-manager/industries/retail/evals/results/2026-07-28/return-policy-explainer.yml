@@ -1,0 +1,19 @@
+skill: return-policy-explainer
+file: skills/customer-service/return-policy-explainer.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.6"
+previous_score: 8.8
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 7
+overall: 8.8
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Re-derived all three worked runs cold: $189 x 0% = $0 net $189; $64 x 0% = $0 net $64; warranty math (142 > 30 standard-closed, 142 <= 365 warranty-open, ~142/30.44 = 4.66 months matches 'about 4½ months') all check exactly. No arithmetic or consistency defects found this cycle. Efficiency still capped at 7 by the 7-category required-input block despite config defaults; the v2.2 mention in Notes is a historical changelog reference, not a stale live pin, so it does not count against clarity."

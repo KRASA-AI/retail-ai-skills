@@ -1,0 +1,19 @@
+skill: agentic-checkout-fraud-shield
+file: skills/operations/agentic-checkout-fraud-shield.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.2"
+previous_score: 8.0
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 8
+  industry_fit: 9
+  output_quality: 6
+  personalization: 8
+  efficiency: 8
+overall: 8.0
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Example Output section is still an unfilled placeholder ('[This section will be populated by the eval system with a reference example...]') -- identical to the 2026-07-20 finding, unchanged in this version (1.2, same as last cycle). No worked decisioning/representment output exists to verify arithmetically, which caps output_quality at 6 regardless of the otherwise strong 2026 payments-fluency content (CE 3.0/FPT, VDMP/VAMP/ECP/EFM, Web Bot Auth, Visa Trusted Agent Protocol, DPAN)."

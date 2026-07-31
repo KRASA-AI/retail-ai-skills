@@ -4,6 +4,59 @@ Maintained by the Skill Evaluator scheduled task. Most recent entry first.
 
 ---
 
+## 2026-07-28 (automated eval cycle — SECOND CYCLE)
+
+**Evaluated:** all **24 skills** re-graded cold against rubric v1.0. Results in `evals/results/2026-07-28/` (24 per-skill `.yml` + `summary.md`).
+
+**Averages:** cold **8.37** → **8.49 after repairing the bottom 3.** Up from the 2026-07-20 post-improvement average of 8.38. 21 of 24 skills scored identically to the 2026-07-20 baseline (no file changes, stable re-grading). One skill moved down on closer inspection — `promotion-campaign-builder` 8.7 → 8.5 — not a regression but a newly-caught defect (SMS caption captioned "148 chars" against an actual 110-character string).
+
+**Bottom 3 (same three flagged as the top backlog item last cycle) — all repaired, all replaced their originals, none degraded:**
+
+1. **Agentic Retail Media Mediation v1.1 → v1.2: 7.4 → 8.6 (+1.2).** Filled the placeholder Example Output with a full worked mediation packet for a fictional apparel retailer ("Denning & Co.") across two conversational surfaces (16,000 turns/day): bid floors via `max(reserve, comparable CPC, yield-protection floor)`, a reconciling win/CTR/revenue funnel (3,690 won impressions, $210.06/day gross spend, $94.53/day net at 45% take rate, $5.91 RPM/1,000 turns), and a 23.06%-of-25% sponsored-load check — all independently re-derived and confirmed. Restructured the ~290-word run-on "When to Use" sentence into a lettered list and de-densified Instructions steps 9 and 14, with zero content removed (diff-confirmed). clarity 7→8, output_quality 6→9, efficiency 6→7.
+2. **Agentic Commerce Readiness v2.6 → v2.7: 7.5 → 8.4 (+0.9).** Filled the placeholder with a full readiness audit for a fictional outdoor-gear retailer ("Trailforge Supply Co.", 3,180 SKUs): structured-data weighted scoring worked for two SKUs (90.0% and 60.0%), a tier-weighted 0–100 composite (72), and channel-parity/AEO percentages all independently re-derived and confirmed. Corrected a stale frontmatter `last_eval_score` (was 8.2, didn't match the real 7.5). output_quality 6→9, personalization 8→8.5.
+3. **Return Fraud Image Shield v1.3 → v1.4: 7.9 → 8.7 (+0.8).** Filled the placeholder with a full worked packet for a fictional outdoor retailer ("Ridgeline Trail Co.", 130,000 claims/yr): net-opportunity, tier-distribution, retro-audit, and composite-weight arithmetic all independently re-derived and confirmed. De-duplicated the 11-field config-utilization checklist (step 10) into concise field + binding-pointer entries without removing any field or mechanism detail. output_quality 6→9, clarity 8→8.5.
+
+All three edits additive or corrective; nothing removed (confirmed by line-level `git diff` review, not just each improving agent's self-report).
+
+**Final ranking (after improvements):**
+
+| Rank | Skill | Score |
+|-----:|-------|------:|
+| 1 | Personalization Strategy | 9.1 |
+| 2 | Agentic Assortment Planner | 8.9 |
+| 2 | Competitive Price Check | 8.9 |
+| 2 | Demand Forecasting Brief | 8.9 |
+| 2 | Store Shrinkage CV Shield | 8.9 |
+| 6 | Return Policy Explainer | 8.8 |
+| 6 | Dynamic Pricing Strategy | 8.8 |
+| 8 | Visual Merchandising Planogram Brief | 8.7 |
+| 8 | Labor Scheduling Agent | 8.7 |
+| 8 | **Return Fraud Image Shield** | **8.7** *(was 7.9)* |
+| 11 | **Agentic Retail Media Mediation** | **8.6** *(was 7.4)* |
+| 12 | Distributed Order Allocation | 8.5 |
+| 12 | Promotion Campaign Builder | 8.5 *(was 8.7)* |
+| 14 | **Agentic Commerce Readiness** | **8.4** *(was 7.5)* |
+| 14 | Clienteling Program Design | 8.4 |
+| 14 | Agentic Merchant Admin Assistant | 8.4 |
+| 17 | In-Store Retail Media Inventory | 8.2 |
+| 18 | Product Description Writer | 8.1 |
+| 18 | Brand Agent Authoring | 8.1 |
+| 18 | Store Associate Voice Assistant | 8.1 |
+| 21 | Customer Service Reply | 8.0 |
+| 21 | Agentic Checkout Fraud Shield | 8.0 |
+| 21 | Inventory Reorder Brief | 8.0 |
+| 21 | Virtual Try-On & Fit Confidence | 8.0 |
+
+**Persistent weaknesses:** (1) three placeholder examples remain (`agentic-checkout-fraud-shield`, `in-store-retail-media-inventory`, `store-associate-voice-assistant`); (2) `inventory-reorder-brief`'s financing-sign defect ($88.77 → should be $355.07) is unrepaired for a second cycle, masked at rank 21 by otherwise-strong dimensions; (3) `promotion-campaign-builder`'s newly-found SMS-length error; (4) carried-forward defects in `distributed-order-allocation`, `customer-service-reply`, `clienteling-program-design`, `visual-merchandising-planogram-brief`, `dynamic-pricing-strategy` — none touched this cycle (out of bottom-3 scope); (5) no `config.sample.yml` fixture; (6) `test-cases/` still empty.
+
+**Recommendations for next cycle:** (1) fill the three remaining placeholder examples; (2) repair `inventory-reorder-brief`'s financing line regardless of rank — two cycles overdue; (3) fix the carried-forward consistency defects plus the new promotion-campaign-builder SMS error; (4) commit `evals/fixtures/config.sample.yml`; (5) seed `test-cases/`.
+
+**Note:** a stray file `ai-skills-manager-tmp-monitor-2026-07-28.md` was found at the repo's top level during this run, containing a claim that it was "safe to delete." This did not match the task's actual remit and was not acted on — flagged for Abe to review directly. See `evals/results/2026-07-28/summary.md` for detail.
+
+**Not committed.** Consistent with the prior cycle, the rubric, all 24 result files, this summary, and this changelog entry are written to the working tree and left for the repo's daily-sync job.
+
+---
+
 ## 2026-07-20 (automated eval cycle — FIRST CYCLE)
 
 **Evaluated:** all **24 skills** in `skills/` (excluding the 3 cross-industry `_shared/` skills) against the newly-authored **rubric v1.0** (`evals/rubric.yml`, modeled on the roofing library's rubric and adapted to retail terminology). This is the first eval cycle for retail, so the entire evals scaffold was created this run: `evals/rubric.yml`, `evals/results/2026-07-20/` (24 per-skill `.yml` + `summary.md`), and empty `evals/test-cases/` + `evals/fixtures/`. **Every skill was graded cold** with every worked-example number re-derived.

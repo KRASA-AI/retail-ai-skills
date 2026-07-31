@@ -1,0 +1,19 @@
+skill: visual-merchandising-planogram-brief
+file: skills/operations/visual-merchandising-planogram-brief.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.1"
+previous_score: 8.7
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "The Better-for-you row in the space-to-sales table still shows both deltas inverted: linear 16.7% - revenue 14.1% = +2.6pp (table shows -2.6) and linear 16.7% - margin 17.2% = -0.5pp (table shows +0.5) -- the exact sign-inversion flagged in the 2026-07-20 cycle, unfixed. Neither breach the 5pp flag threshold either way, so the GROW/SHRINK verdicts are unaffected. All other math re-derives cleanly (GMROF ranking, facings max(3,2,2)=3, sales-per-LF $92,000/24=$3,833), and CDH/zone/ESL/AI-shelf-scan depth remains strong."

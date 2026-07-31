@@ -1,0 +1,19 @@
+skill: demand-forecasting-brief
+file: skills/operations/demand-forecasting-brief.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.2"
+previous_score: 8.9
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Re-derived the full forecast chain: baseline = 420 x 1.08 x seasonality (567/581/590/553), net external multiplier 1.08 x 1.15 x 0.95 = 1.180, mid = baseline x 1.180 (669/685/696/653, totaling 2,703), 80% PI bands (Z=1.28, sigma=70, +/-90) all check. Two trivial, unchanged rounding blips remain: the high-band total prints 3,063 vs. the recomputed 3,062, and the competitor-cuts-15pct scenario prints 2,566 vs. a recomputed ~2,561 -- both immaterial (<0.2%) and unchanged from last cycle. OTB (2,703-520-300+198=2,081) and safety stock (1.65x120=198) check exactly."

@@ -1,0 +1,19 @@
+skill: virtual-try-on-fit-confidence
+file: skills/sales/virtual-try-on-fit-confidence.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.0
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 8
+  output_quality: 9
+  personalization: 7
+  efficiency: 7
+overall: 8.0
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Unchanged since 2026-07-20 (still v1.1, already improved that cycle). Example Output remains the full Northbourne worked audit with a reconciling 6-sub-class eligibility table, JSON fit-signal schema, and consent/measurement plans. Independently recomputed the measurement-plan power calc: detecting 24%->21% at 80% power / alpha=.05 two-sided requires n=3,040/cell by two-proportion formula, matching the file's stated '~3,000 orders per cell.' No arithmetic defects found."

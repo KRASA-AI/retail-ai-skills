@@ -1,0 +1,19 @@
+skill: dynamic-pricing-strategy
+file: skills/operations/dynamic-pricing-strategy.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.2"
+previous_score: 8.8
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 9
+overall: 8.8
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "The flagged scenario-grid rounding mismatch persists: the Conservative row shows '73 units | $4,813' but 65.99 x 73 = $4,817.27; the displayed $4,813 only reconciles against the unrounded 72.93 units the PED formula actually produces, so a reader multiplying the displayed integer by price gets a $4 gap. The same rounded-display-vs-unrounded-calc pattern recurs in the Recommended row (82/wk vs $4,729, needs unrounded 81.55). Core math is otherwise correct (-25.65% depth, $23.99/unit margin at 41.4% GM, WOS 8.8wk, rollback trigger at 72 units/wk)."

@@ -1,0 +1,19 @@
+skill: in-store-retail-media-inventory
+file: skills/operations/in-store-retail-media-inventory.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.0"
+previous_score: 8.2
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 6
+  personalization: 9
+  efficiency: 7
+overall: 8.2
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Example Output is still the unfilled placeholder ('[This section will be populated by the eval system with a reference example...]') from the 2026-07-20 cycle -- no worked output exists to verify any of the 12 process steps, which caps output_quality at 6. The step-5 cross-reference of the impression-discrepancy budget to `retail_media.adjacency_rules` (a brand-safety field, not a measurement field) also persists unchanged. Instructions remain exceptionally deep on IAB In-Store Measurement, GARM, clean-room k-anonymity (>=1,000), and the biometric-privacy regime matrix (BIPA/CUBI/HB1493/GDPR)."

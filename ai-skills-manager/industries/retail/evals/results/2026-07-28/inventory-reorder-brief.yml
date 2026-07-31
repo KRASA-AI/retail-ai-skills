@@ -1,0 +1,19 @@
+skill: inventory-reorder-brief
+file: skills/operations/inventory-reorder-brief.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.2"
+previous_score: 8.0
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 5
+  personalization: 8
+  efficiency: 8
+overall: 8.0
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "The flagged Net-90 defect is unfixed: the supplier-terms table still reads '-$180 + $88.77 financing = net -$91' but $88.77 = $12,000 x 0.18 x 15/365 (a 15-day figure), not the 60-day extension the skill's own formula prescribes; correctly, financing = $12,000 x 0.18 x 60/365 = $355.07 and net = +$175.07, which flips 'reject' toward accept-worthy (final pick, Net 60 at +$177.53, is unchanged). Every other number re-derives cleanly (EOQ 1,528, ROP 1,889, landed cost $8.454/unit, GM 57.7%, freight-break saving $556). This remains the single highest-priority unresolved defect among the reviewed skills."

@@ -1,0 +1,19 @@
+skill: agentic-assortment-planner
+file: skills/operations/agentic-assortment-planner.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.9
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Full cold re-derivation of the EXIT-vs-MARKDOWN worked example confirms no arithmetic errors: 1,180 x 44% = 519 returns / 661 net; 661 x $61 = $40,321; minus $11,418 repack, $5,002 resale loss (208 x $24.05), $25,813 liquidation loss (311 x $83) = exactly -$1,912 CM; sell-down 640 units at $128 basis ($81,920) recovers $48,422 (192@$113.40 + 256@$75.60 + 192@$38) = $33,498 write-down. Heat-map z-scores (+0.66, -1.96, -0.24, -1.83) and OTB 59% ($106,128/$180,000) all check exactly. Remains the most rigorous worked example across this batch."

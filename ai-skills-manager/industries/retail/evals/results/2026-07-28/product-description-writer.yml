@@ -1,0 +1,19 @@
+skill: product-description-writer
+file: skills/sales/product-description-writer.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.3"
+previous_score: 8.1
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 8
+  output_quality: 9
+  personalization: 8
+  efficiency: 7
+overall: 8.1
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Unchanged since 2026-07-20 (still v2.3); both flagged issues remain fixed on recheck. 'MoCRA for cosmetics' is now used correctly in both Required Input #7 and step 9 (no COSRA). Example Output is a complete worked listing (Volaré Lite stroller); re-counted the three stated character claims by script and all matched exactly: Amazon title 128 chars, Shopify title 57 chars, meta description 156 chars. No new arithmetic defects found."

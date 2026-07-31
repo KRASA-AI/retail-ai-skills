@@ -1,0 +1,19 @@
+skill: labor-scheduling-agent
+file: skills/operations/labor-scheduling-agent.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.7
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 8
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors on cold re-derivation: wage-cost gap $4,284 (0.7% x $612,000), conversion recovery $701.34 (51.1 baskets x $52.80 x 26% GM), and net prize $1,169.74 (x52 = $60,826) all check exactly. The logical wrinkle flagged in 2026-07-20 persists: 'Total week-29 premium-pay liability: $107.00' still bundles the $42.80 clopen premium that the same packet recommends avoiding via reassignment to M. Iqbal, so the headline liability reads as gross exposure rather than the post-recommendation net (~$64.20)."

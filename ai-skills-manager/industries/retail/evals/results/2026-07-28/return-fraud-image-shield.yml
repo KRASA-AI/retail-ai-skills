@@ -1,0 +1,19 @@
+skill: return-fraud-image-shield
+file: skills/operations/return-fraud-image-shield.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.4"
+previous_score: 7.9
+graded_cold: true
+scores:
+  clarity: 8.5
+  specificity: 8.5
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.7
+improvement_candidate: false
+improvement_applied: true
+replaced_original: true
+note: "v1.3 -> v1.4 (+0.8). Filled the placeholder Example Output with a complete worked packet for a fictional outdoor retailer (Ridgeline Trail Co., 130,000 claims/yr, $95 avg claim): net opportunity $555,750 - $392,800 = $162,950 independently re-verified, tier distribution 71,500/26,000/26,000/6,500 sums to 130,000, retro-audit 60-day population ~2,600 and top-decile 260 reconcile, composite weights (0.35/0.25/0.30/0.10) and signal-c sub-weights (0.45/0.35/0.20) each sum to 1.00 -- all independently re-derived and confirmed correct. Also de-duplicated the 11-field config-utilization checklist (step 10) into concise field+binding-pointer entries, moving the mechanism detail (already covered in steps 2-6) out of step 10 without removing any of the 11 fields. output_quality 6->9, clarity 8->8.5."

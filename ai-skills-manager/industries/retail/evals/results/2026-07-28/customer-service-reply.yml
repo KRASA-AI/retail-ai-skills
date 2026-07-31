@@ -1,0 +1,19 @@
+skill: customer-service-reply
+file: skills/customer-service/customer-service-reply.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "3.4"
+previous_score: 8.0
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8
+  industry_fit: 9
+  output_quality: 7
+  personalization: 8
+  efficiency: 8
+overall: 8.0
+improvement_candidate: true
+improvement_applied: false
+replaced_original: false
+note: "Both flagged defects are UNFIXED despite the version bump from 3.3 to 3.4: return-policy-explainer is still pinned three different ways in one file -- v2.2 (step 1, x4 mentions, step-1 cross-link header), v2.1 (step 5), v2.3 (worked example) -- against the actual file's v2.6 header. The $240 reship 'within cap' claim (worked example, restitution tag) still cites `per_channel_gesture_limits[email] x per_tier_multiplier[gold 1.25]` without ever showing the cap dollar figure, so the math is asserted, not proven. No new numeric errors found. output_quality held at 7."

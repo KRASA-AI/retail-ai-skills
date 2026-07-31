@@ -1,0 +1,19 @@
+skill: store-shrinkage-cv-shield
+file: skills/operations/store-shrinkage-cv-shield.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.3"
+previous_score: 8.9
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 8
+overall: 8.9
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors on cold re-derivation: $25.5M x 2.4% = $612k shrink, $420k SCO loss x 28% reduction = $117,600 (~$118k recovered), and $78k outlay / ($118k/12) = 7.96 months matches the stated '~8-month payback' exactly. Deep, current AP/CV trade fluency (Hailo/Jetson edge stacks, BIPA/CUBI/MHMD/NYC POST Act, EBR sub-second journal join, honest-shopper friction-floor). Version and score unchanged from 2026-07-20; no new defects found and none of the flagged issues applied to this file."

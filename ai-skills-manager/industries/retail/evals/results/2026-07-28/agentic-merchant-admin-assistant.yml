@@ -1,0 +1,19 @@
+skill: agentic-merchant-admin-assistant
+file: skills/operations/agentic-merchant-admin-assistant.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.4
+graded_cold: true
+scores:
+  clarity: 9
+  specificity: 8
+  industry_fit: 9
+  output_quality: 8
+  personalization: 8
+  efficiency: 8
+overall: 8.4
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "No arithmetic errors: the $500/day x 7 = $3,500/week budget envelope is used consistently, and the 110% overrun pause trigger ($3,850) is correctly referenced against it. Autonomy-tier ceilings (SKU counts, dollar depths) are illustrative rather than formula-derived from named config bands, which caps specificity at 8. The worked example is complete and internally consistent but is a governance judgment call rather than a computation, limiting how much output_quality can be verified numerically -- unchanged from the 2026-07-20 cycle."

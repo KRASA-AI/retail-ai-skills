@@ -1,0 +1,19 @@
+skill: agentic-commerce-readiness
+file: skills/sales/agentic-commerce-readiness.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "2.7"
+previous_score: 7.5
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 8.5
+  industry_fit: 8.5
+  output_quality: 9
+  personalization: 8.5
+  efficiency: 8
+overall: 8.4
+improvement_candidate: false
+improvement_applied: true
+replaced_original: true
+note: "v2.6 -> v2.7 (+0.9). Filled the placeholder Example Output with a complete worked readiness audit for a fictional outdoor-gear retailer (Trailforge Supply Co., 3,180 SKUs): structured-data scoring (12 required x2 + 6 recommended x1 = 30 max; two worked SKUs at 27/30=90.0% and 18/30=60.0%) independently re-verified, SKU band counts sum to 3,180, tier-weighted composite (84x.20+78x.25+61x.35+70x.20=71.65->72) reconciles, channel-parity (41/1,140=3.6%) and regulated-category (59/96=61.5%) and AEO/FAQ coverage (1,720/3,180=54.1%; 18/24=75.0%) percentages all independently re-derived and confirmed correct. Also corrected the stale frontmatter last_eval_score (was 8.2, did not match the real 2026-07-20 score of 7.5). output_quality 5->9, personalization 7->8.5. No other content changed; the file's already-deep 2026-protocol vocabulary (AP2, UCP, Universal Cart, ACE, Mastercard Agent Suite) was reinforced but not otherwise touched."

@@ -1,0 +1,19 @@
+skill: agentic-retail-media-mediation
+file: skills/sales/agentic-retail-media-mediation.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.2"
+previous_score: 7.4
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 9
+  industry_fit: 9
+  output_quality: 9
+  personalization: 9
+  efficiency: 7
+overall: 8.6
+improvement_candidate: false
+improvement_applied: true
+replaced_original: true
+note: "v1.1 -> v1.2 (+1.2), largest gain of the cycle. Filled the placeholder Example Output with a complete worked mediation packet for a fictional apparel retailer (Denning & Co., two conversational surfaces, 16,000 turns/day): bid floors (max(reserve, comparable CPC, yield-protection floor) -> $0.54 / $0.62 / $0.20 per tier), win-rate/CTR funnel (1,890 + 1,800 = 3,690 won impressions; 161 + 153 = 314 clicks), gross ad spend ($101.43 + $108.63 = $210.06), net revenue at 45% take rate ($94.53/day), RPM ($5.91/1,000 turns), and sponsored-load ratio (3,690/16,000=23.06% vs 25% ceiling) were all independently re-derived and confirmed correct. Also restructured the ~290-word run-on 'When to Use' sentence into a lettered (a)-(f) list and broke up the densest sub-clauses of Instructions steps 9 and 14, with zero named platform, protocol, formula, or cross-skill reference removed (confirmed by diff review). clarity 7->8, output_quality 6->9, efficiency 6->7."

@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~35 min/case batch"
-version: 1.3
-last_eval_score: 9.1
+version: 1.4
+last_eval_score: 8.7
 ---
 
 # 🔍 Return Fraud Image Shield
@@ -49,18 +49,18 @@ You are a retail returns, loss-prevention, and payments-operations assistant. Yo
 7. **Privacy, retention, and customer experience** — Privacy checklist: EXIF is used for the claim decision and not retained beyond 180 days, biometric data in photos (faces of customers in unboxing videos) is not stored, appeal path is one click from the deny message, refund-turnaround commitments are met for auto-approve cases. Add a customer-communication tone guide so step-up requests do not read as accusatory.
 8. **KPI scorecard and rollback** — Weekly scorecard: refund-approval rate, step-up completion rate, confirmed-fraud rate per 1,000 claims, false-decline rate (audit sample), chargeback representment win rate on the post-deny disputes, and refund-time-to-credit. Rollback triggers if false-decline rate, CSAT, or refund-time SLA regresses.
 9. **Retro-audit sweep of recently approved refunds** — The per-claim rubric is forward-looking, but an evidence-forgery capability that "exploded overnight" means the losses already on the books are the fastest payback. Specify a backward-looking sweep of the trailing 30–90 days of *approved, no-return-required* refunds: re-score them through the step-2 signal composite (especially signal-a generator-watermark/provenance and the non-photo authenticity checks, and signal-c cross-merchant reuse), rank by claim $ × composite risk, and route the top band to a reviewer for pattern confirmation and — where policy and scheme rules allow — post-refund recovery or account action. Define the sweep's stop rule (hit rate falls below the labor break-even), the privacy constraint (this is a re-read of evidence already lawfully held for the retention window, not new collection), and the guardrail against retroactively penalizing honest customers (a retro flag opens a review, never an automatic clawback). This is also the cleanest way to *measure* the AI-synthetic share for the step-1 calibration rather than guessing it.
-10. **Config-utilization checklist** — Confirm the output uses all eleven of the following fields from `config.yml` rather than generic placeholders:
-   1. `brand.banner` — banner name in all customer-facing communications (step-up request templates, appeal path messages) and in the reviewer SOP header
-   2. `policies.refund_turnaround_commitment` — the SLA the auto-approve refund-timeline check in the privacy checklist (step 7) holds to; flag any auto-approve case where the composite score is below threshold but the turnaround commitment would be missed without immediate action
-   3. `payments.psp` — the payment-service provider drives the chargeback representment path in step 5; CE 3.0 eligibility requirements and evidence-field naming vary by acquiring bank and PSP, so cite the configured PSP explicitly in the representment section
-   4. `loyalty.tiers` — the carve-out tiers that receive auto-approve treatment in the decisioning rubric (step 3) and the restitution ceiling per tier in the step-up evidence library (step 4)
-   5. `risk_appetite` — the composite-score threshold bands (auto-approve / auto-approve-with-notation / step-up / deny) in step 3 reflect the merchant's configured risk tolerance; do not default to industry medians
-   6. `image_forensics.c2pa_required_categories` — the product categories for which a C2PA content credential is required on the submitted return photo (typically: electronics, luxury goods, collectibles, any serialized-item category); if the SKU falls within a required category and the submitted photo carries no C2PA credential or the credential fails verification, record this as a signal-a failure in the four-signal composite (step 2); for SKUs outside the required-category list, C2PA absence is optional-evidence only and should not be counted as a negative signal
-   7. `chargeback_policy.evidence_paths` — the pre-authorized Visa CE 3.0 and Mastercard First Party Trust evidence fields for each deny-tier decision, loaded from the same config source as `agentic-checkout-fraud-shield` so both skills draw from the authoritative policy record; use these fields to pre-populate the chargeback evidence mapping in step 5 without requiring a follow-up "which representment format do you use?"; if this field is absent from `config.yml`, flag the output's representment section as "human review required before initiating any deny + dispute scenario — configure `chargeback_policy.evidence_paths` to enable one-shot representment output"
-   8. `behavioral_risk_score.external_vendor` — the named external behavioral-risk-score vendor whose score participates in the step-2 four-signal composite under signal-c (UPS Happy Returns Return Vision Jan 2026; Appriss Retail; Signifyd Returns; or "none configured"); the composite weighting in step 2 references this field directly rather than the prose "consider external vendors" treatment of v1.1; the fallback when the external vendor is stale or unreachable is documented in step 2 and the audit log captures the degradation; if this field is absent or "none configured," the behavior-signal block in step 2 uses the internal block only and the merchant is flagged for the gap in cross-merchant behavioral coverage
-   9. `non_image_inspection.vendor` — the named non-image-modality return-inspection vendor for serialized / high-AOV categories (ReturnPro × Clarity X-ray Feb 2026; or equivalent; or "none configured"); the step-4 step-up evidence library routes serialized / high-AOV step-ups through the configured vendor's non-image inspection rather than always demanding another customer-supplied photo; the inspection result feeds back into the step-2 signal composite under signal-b product signals; if this field is absent or "none configured," the step-up path is customer-photo only and the merchant is flagged for the gap in serialized / high-AOV non-image coverage
-   10. `submitted_evidence.accepted_artifacts` — the customer-supplied evidence types the merchant accepts as proof beyond the primary damage photo (carrier-delivery screenshots, prior customer-service-approval screenshots, shipping-label images, complaint narratives; or "primary photo only"); every accepted non-photo artifact must be screened by the step-2 signal-a authenticity check against the merchant's own system of record (carrier API, ticketing system, order history) rather than trusted as submitted; if this field is unset, default to "primary photo only" and flag any non-photo artifact that reaches a reviewer as un-vetted, with a recommendation to either stop accepting it or wire its verification
-   11. `network_fraud_signal.vendor` — the named cross-merchant return-fraud network signal (a network fraud-prevention vendor such as Yofi; or "none configured") that flags a claim's image or complaint narrative as reused across other merchants' accounts; this feeds the step-2 signal-c cross-merchant-reuse sub-signal under a documented weight; if absent or "none configured," reuse detection degrades to the merchant's own accounts only and the merchant is flagged for the gap in cross-merchant reuse coverage
+10. **Config-utilization checklist** — Confirm the output uses all eleven of the following fields from `config.yml` rather than generic placeholders. Each is a concise field + binding pointer; the mechanism itself is specified in the referenced step, not restated here:
+   1. `brand.banner` — used in step-up request templates and the reviewer SOP header (steps 4, 6).
+   2. `policies.refund_turnaround_commitment` — the SLA basis for the privacy-checklist turnaround check (step 7).
+   3. `payments.psp` — cited explicitly in the chargeback representment section since CE 3.0 field naming varies by PSP (step 5).
+   4. `loyalty.tiers` — drives the auto-approve carve-out (step 3) and the step-up restitution ceiling per tier (step 4).
+   5. `risk_appetite` — sets the composite-score threshold bands in step 3; never default to industry medians.
+   6. `image_forensics.c2pa_required_categories` — defines which SKUs require a C2PA credential for the signal-a check (step 2).
+   7. `chargeback_policy.evidence_paths` — pre-populates the chargeback evidence mapping (step 5), shared source with `agentic-checkout-fraud-shield`; if absent, flag representment as human-review-required.
+   8. `behavioral_risk_score.external_vendor` — named vendor blended into the signal-c composite under its documented weight (step 2); if absent, behavior signal is internal-block-only and the gap is flagged.
+   9. `non_image_inspection.vendor` — routes serialized / high-AOV step-ups to non-image inspection (step 4); if absent, step-up defaults to customer-photo only and the gap is flagged.
+   10. `submitted_evidence.accepted_artifacts` — defines which non-photo artifacts get the signal-a system-of-record check (step 2); unset defaults to "primary photo only" and flags any non-photo artifact reaching a reviewer as un-vetted.
+   11. `network_fraud_signal.vendor` — feeds the signal-c cross-merchant-reuse sub-signal under its documented weight (step 2); if absent, reuse detection is single-merchant only and the gap is flagged.
 
 **Output requirements:**
 - Executive summary (5–7 bullets) with the dollar prize, the minimum-volume floor, and the rollback trigger
@@ -79,4 +79,100 @@ You are a retail returns, loss-prevention, and payments-operations assistant. Yo
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+**Input (abbreviated):** *Ridgeline Trail Co.* (mid-market outdoor apparel/footwear, ~$300M online revenue). Trailing 12 months: 130,000 photo-supported claims, avg claim $95 (claim$ = $12,350,000), online return rate 21% (vs. industry 19–20% baseline — the trigger for running this skill), approval rate 81%. Config present: `brand.banner`, `policies.refund_turnaround_commitment`, `payments.psp`, `loyalty.tiers`, `risk_appetite`, `image_forensics.c2pa_required_categories`, `chargeback_policy.evidence_paths`, `behavioral_risk_score.external_vendor` = UPS Happy Returns Return Vision, `submitted_evidence.accepted_artifacts`, `network_fraud_signal.vendor` = Yofi. Config absent: `non_image_inspection.vendor`.
+
+---
+
+**Executive summary**
+
+- **Net opportunity: $162,950/year.** Gross detectable-fraud recovery = claim$ × abuse share × detectable share = $12,350,000 × 9% × 50% = **$555,750**, minus false-decline exposure ($72,800), review labor ($170,000), and tool cost ($150,000) = $392,800 in costs → **$555,750 − $392,800 = $162,950** net.
+- **Claim-volume floor: ≈86,100 claims/year.** Below this, fixed review-labor + tool cost ($320,000) exceeds the detectable-fraud margin per claim ($3.715). Ridgeline's 130,000/year clears the floor by ~43,900 claims — an automated pipeline is justified, not reviewer-only triage.
+- **Tier distribution at current thresholds:** 71,500 auto-approve / 26,000 auto-approve-with-notation / 26,000 step-up / 6,500 deny-with-appeal (55% / 20% / 20% / 5% of the 130,000 claims).
+- **Rollback trigger:** false-decline rate > 0.6% for 2 consecutive weekly cycles, CSAT drop > 5 pts, or refund-time-to-credit SLA (5 business days) breached on > 10% of auto-approve cases in a week — any one reverts thresholds to the prior configuration.
+- **Retro-audit sweep:** trailing 60 days of no-return-required approved refunds (≈2,600 cases) re-scored; top decile (~260 cases) routed to reviewer; sweep stops expanding once hit rate falls below the 12.7% labor break-even.
+- **Config gap flagged:** `non_image_inspection.vendor` is unconfigured — step-ups for smart-footwear/electronics-accessory SKUs fall back to customer-photo/video requests only; recommend configuring before those SKUs scale.
+- **Floor/carve-out design:** the $150 auto-approve floor plus the Peak-loyalty-tier carve-out keep low-dollar, low-risk claims frictionless, concentrating reviewer effort on the 26% of volume (step-up + deny) that needs it.
+
+**1. Four-signal risk score (composite, 0–1, weights sum to 1.00)**
+
+`Composite = 0.35×signal-a + 0.25×signal-b + 0.30×signal-c + 0.10×signal-d`
+
+- **signal-a — submitted-evidence authenticity (0.35):** EXIF, C2PA (required for the `image_forensics.c2pa_required_categories` cohort: insulated outerwear > $300 AOV, technical footwear with embedded electronics, eyewear/sunglasses), generator-watermark/provenance scan, AI-generation probability, reverse-image-search — plus, for the two non-photo artifact types Ridgeline accepts under `submitted_evidence.accepted_artifacts` (carrier-delivery screenshots, complaint narratives; CS-approval screenshots not accepted), system-of-record reconciliation against Ridgeline's own carrier-API and order-history data rather than trusting the customer's screenshot.
+- **signal-b — product/catalog match (0.25):** catalog-image similarity, SKU-serial match (applies to the smart-footwear/electronics-accessory cohort), packaging match.
+- **signal-c — behavior, incl. cross-merchant reuse (0.30)** = `0.45×internal block + 0.35×behavioral_risk_score.external_vendor + 0.20×network_fraud_signal.vendor` (weights sum to 1.00): internal block = time-to-claim outlier, prior claim rate, ship-to reuse, tenure, prior chargebacks; external = **UPS Happy Returns Return Vision** behavioral score; network reuse = **Yofi** cross-merchant flag.
+- **signal-d — context (0.10):** high-resale SKU, peak-season spike, promo exposure, AI-generated damage-claim pattern-match flag.
+
+**2. Decisioning rubric**
+
+| Tier | Composite threshold | $ threshold | Action | Customer message pattern |
+|---|---|---|---|---|
+| Auto-approve | < 0.20 (or < 0.15 with Peak-tier loyalty carve-out) | < $150 | Immediate credit, no evidence request | "Your refund of $[X] has been approved and is on its way." |
+| Auto-approve w/ notation | 0.20–0.39 | < $300 | Approve; internal pattern-analysis flag only | Same customer copy as above; no visible friction |
+| Step-up | 0.40–0.69, or < 0.40 with $ ≥ $300 | any | Request one specific piece of evidence, deadline-bound | "To finish processing your claim, please provide [X] by [date]." |
+| Deny w/ appeal | ≥ 0.70 **and** ≥ 2 signals fail forensic check | any | Deny with stated reason + one-click appeal | "We're unable to approve this claim based on [reason]. Appeal here." |
+
+**3. Step-up evidence library (excerpt, 4 of the library)**
+
+1. *Smart-footwear/electronics-accessory, `non_image_inspection.vendor` unconfigured fallback:* "We'd like to take a closer look — please reply with the item's serial number (found on the box label) and a 15-second unboxing video by [date]." → feeds signal-b; maps to CE 3.0 "device/serial consistency" field.
+2. *Damaged-on-arrival outerwear in the C2PA-required cohort:* "Could you send one more photo showing the damage next to the shipping label, taken directly in your camera app (not a screenshot)?" → feeds signal-a; maps to CE 3.0 "device/session fingerprint."
+3. *Carrier-delivery screenshot fails system-of-record reconciliation:* "Our carrier record doesn't match what you sent — can you request an official damage report from [carrier] and forward it by [date]?" → feeds signal-a; maps to "delivery confirmation with address match."
+4. *High composite, low forensic confidence, no clean deny path:* "We're not able to approve this online — please bring the item to any Ridgeline store for an in-person look by [date]." → return-to-store; closes the loop without an extra photo request.
+
+**4. Retro-audit sweep spec**
+
+Lookback: trailing 60 days of *approved, no-return-required* refunds (15% of the 105,300 approved claims/year → ≈2,600 in the window). Re-score inputs: signal-a (generator-watermark/provenance + non-photo system-of-record checks) and signal-c (Yofi cross-merchant reuse). Rank by claim$ × composite risk, descending; route the top decile (~260 cases) to reviewer for pattern confirmation. Stop rule: hit rate (confirmed fraud ÷ reviewed) below **12.7%** ($12.06 reviewer cost/case ÷ $95 avg claim) — do not expand further down the ranked list. Privacy constraint: this is a re-read of evidence already lawfully held inside the 180-day EXIF retention window, not new collection. Guardrail: a retro flag opens a review, never an automatic clawback.
+
+**5. Chargeback evidence mapping**
+
+| Our signal | Scheme field | CE 3.0 / First Party Trust eligibility |
+|---|---|---|
+| Signal-a generator-watermark/provenance or C2PA failure | Device/session-fingerprint inconsistency | CE 3.0 eligible |
+| System-of-record carrier reconciliation (Adyen/carrier API, not customer screenshot) | Delivery confirmation with address match | CE 3.0 + First Party Trust eligible |
+| Signal-c internal block: prior undisputed orders, same device/ship-to | Prior order history / device consistency | CE 3.0 eligible |
+| Reviewer SOP structured decision log + step-up thread | Communication log | First Party Trust eligible |
+| Signal-c Yofi network-reuse flag | Supplemental fraud-network corroboration | Supports both frameworks as corroborating evidence |
+
+**6. Reviewer SOP**
+
+1. Ingest the composite score and four contributing signal sub-scores from the case queue (Ridgeline Trail Co. reviewer console header via `brand.banner`).
+2. Compare the submitted photo against the catalog image and any prior claim photos on the account.
+3. Check SKU-serial match for the smart-footwear/electronics-accessory cohort.
+4. For non-photo artifacts, confirm the system-of-record reconciliation result before accepting.
+5. Document the decision in structured fields (tier, signal scores, rationale, evidence collected).
+6. Escalate claims ≥ $300 or a novel fabrication pattern to a senior reviewer.
+7. Route ≥ 3 linked accounts (shared ship-to/device/payment across confirmed-fraud claims) to LP/asset protection as an organized-return-fraud ring.
+8. Close the loop: log the outcome with the 180-day EXIF-retention flag applied.
+
+**7. Privacy and retention checklist**
+
+- EXIF used for the claim decision only; purged at 180 days.
+- Faces in unboxing videos not stored; auto-blurred before human review.
+- Appeal path is one click from the deny message.
+- Refund-turnaround commitment (5 business days from `policies.refund_turnaround_commitment`) tracked weekly for auto-approve and auto-approve-w/-notation tiers.
+- Retro-audit sweep re-reads evidence already lawfully held; the sweep itself triggers no new collection.
+- Step-up request copy reviewed for non-accusatory tone before send.
+
+**8. KPI scorecard**
+
+| KPI | Baseline | Target | Rollback trigger |
+|---|---|---|---|
+| Refund-approval rate | 81% | Hold 78–83% | Monitor only |
+| Step-up completion rate | n/a (new) | ≥ 65% | < 50% for 2 weeks → simplify template |
+| Confirmed-fraud rate / 1,000 claims | n/a (new) | Decline quarter-over-quarter | Monitor only |
+| False-decline rate (audit sample) | Target ≤ 0.4% | ≤ 0.4% | > 0.6% for 2 consecutive weekly cycles → rollback thresholds |
+| Chargeback representment win rate | n/a (new) | ≥ 60% | < 45% for 2 cycles → review evidence mapping |
+| Refund-time-to-credit | 5 business days (SLA) | Hold to SLA | Breach on > 10% of cases in a week → rollback |
+
+**9. Config-utilization checklist**
+
+1. `brand.banner` = "Ridgeline Trail Co." — step-up templates and reviewer SOP header.
+2. `policies.refund_turnaround_commitment` = "5 business days from approval" — KPI + privacy-checklist SLA basis.
+3. `payments.psp` = "Adyen" — cited in the chargeback representment section.
+4. `loyalty.tiers` = Basecamp / Summit / Peak — Peak carve-out applied in the auto-approve tier.
+5. `risk_appetite` = "moderate" — composite thresholds set at 0.20 / 0.40 / 0.70 rather than an industry median.
+6. `image_forensics.c2pa_required_categories` = insulated outerwear > $300 AOV, technical footwear with embedded electronics, eyewear/sunglasses.
+7. `chargeback_policy.evidence_paths` = configured, shared source with `agentic-checkout-fraud-shield` — pre-populated the mapping table above.
+8. `behavioral_risk_score.external_vendor` = "UPS Happy Returns Return Vision" — 0.35 weight inside signal-c.
+9. `non_image_inspection.vendor` = **none configured — FLAGGED.** Step-up path for serialized/high-AOV SKUs falls back to customer-photo/video only; recommend configuring before smart-footwear/electronics-accessory SKUs scale further.
+10. `submitted_evidence.accepted_artifacts` = primary photo + carrier-delivery screenshots + complaint narratives (CS-approval screenshots not accepted) — each screened per signal-a.
+11. `network_fraud_signal.vendor` = "Yofi" — 0.20 weight inside signal-c cross-merchant reuse.

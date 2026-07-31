@@ -1,0 +1,19 @@
+skill: clienteling-program-design
+file: skills/sales/clienteling-program-design.md
+date: 2026-07-28
+first_eval: false
+version_evaluated: "1.1"
+previous_score: 8.4
+graded_cold: true
+scores:
+  clarity: 8
+  specificity: 9
+  industry_fit: 8
+  output_quality: 9
+  personalization: 9
+  efficiency: 7
+overall: 8.4
+improvement_candidate: false
+improvement_applied: false
+replaced_original: false
+note: "Unchanged since 2026-07-20 (still v1.1); the flagged regulatory mislabel remains present in two places -- step 7 ('EU AI Act Article 22 right not to be subject to solely automated decision-making') and the Notes section repeat it, even though Required Input #6 correctly cites 'GDPR Article 22 automated-decision-making rules' for the same concept. The AI Act's actual transparency provision is Article 50, not 22. Worked example ($180M x 42% = $75.6M -> x45% = $34.02M -> x0.60x0.08 = $1.633M -> x58% = $0.947M - $0.600M = ~$347K/yr) re-derives exactly. industry_fit held at 8 for the uncorrected citation error."

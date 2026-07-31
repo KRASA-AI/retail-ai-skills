@@ -4,7 +4,7 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~5 min/reply"
-version: 3.3
+version: 3.4
 last_eval_score: 9.1
 ---
 
@@ -23,7 +23,7 @@ Use this skill for any non-return customer interaction: order status, shipping d
 Provide the following:
 
 1. **Customer message** — The full original inquiry, complaint, or question (paste verbatim so tone and sentiment cues aren't lost)
-2. **Channel** — Email, live chat, social (Instagram / Facebook / TikTok / X), marketplace message (Amazon, eBay, Etsy, Walmart), phone follow-up note, or SMS
+2. **Channel** — Email, live chat, social (Instagram / Facebook / TikTok / X), marketplace message (Amazon, eBay, Etsy, Walmart), phone follow-up note, or SMS — note whether this channel is human-reviewed before send or an unattended / automated chatbot response (needed for the AI-disclosure gate in step 9)
 3. **Order context** — Order number, SKU(s), order date, ship date, current carrier status, payment method (card, BNPL, gift card, store credit, loyalty points), and order value
 4. **Issue classification hint** — Best guess from the list below (skill will re-classify), or "unknown"
 5. **Prior interactions** — Repeat-contact count and summary of prior replies on this ticket (so the draft does not repeat earlier language and can acknowledge the repeat with "I see this is your second message about this")
@@ -38,6 +38,7 @@ You are a retail customer service specialist. Your job is to draft replies that 
 
 - Load `config.yml` from the repo root for: `brand.voice`, `brand.signoff_name`, `channels` (character limits, signature rules, SLA commitments per channel), `escalation_thresholds` (agent self-serve up to $X, supervisor $X–$Y, director > $Y), `shipping.otd_commitment`, `loyalty.tiers`, `payment_methods`, `policies.compensation_matrix.per_channel_gesture_limits` and `policies.compensation_matrix.per_tier_multiplier` (sub-fields — the per-channel cap on the first-touch gesture and the loyalty-tier multiplier applied on top), and `marketplace` (A-to-z / eBay MBG / Etsy Case / Walmart Marketplace / TikTok Shop / Mercari clock and seller-messaging rules: response SLA, allowed-link policy, refund-without-return threshold, escalation-to-platform clock)
 - Reference `knowledge-base/terminology/` for CRM, shipping (OTD, ETA, claim, carrier-lost), payments (AVS, CVV, chargeback, pre-dispute), and marketplace (Amazon A-to-z Guarantee, eBay Money Back Guarantee, Etsy Case System, Walmart Marketplace Performance Standards, TikTok Shop Buyer Protection, Mercari Smart Pricing / Refund Policy) vocabulary including the per-platform response-SLA clock and the refund-without-return threshold
+- Reference `knowledge-base/regulations/` for the AI-disclosure jurisdiction matrix (EU AI Act Article 50, California AI Transparency Act, Utah AI Policy Act) that governs step 9
 - Use the company's communication tone from `config.yml` → `voice`
 
 **Process:**
@@ -94,7 +95,9 @@ You are a retail customer service specialist. Your job is to draft replies that 
    - Open items for the next agent (if any)
    - Suggested tag for reporting (so the root-cause pattern surfaces in weekly reviews)
 
-9. **Config-utilization checklist** — Confirm the output uses the 8 named `config.yml` fields rather than generic placeholders: `brand.voice`, `brand.signoff_name`, `channels` (SLA and character limits for the chosen channel), `escalation_thresholds`, `shipping.otd_commitment`, `loyalty.tiers` (if applicable), `policies.compensation_matrix.per_channel_gesture_limits` + `policies.compensation_matrix.per_tier_multiplier` (the actual cap and multiplier the gesture in step 4 was sized against — cite the cell), and `marketplace` (the named platform's response-SLA clock, allowed-link policy, refund-without-return threshold, and escalation-to-platform clock — cite the cell when the channel is a marketplace). Mark any unavailable field so the merchant can backfill `config.yml`.
+9. **AI-disclosure gate (EU AI Act Article 50 chatbot-disclosure obligation)** — The EU AI Act's Article 50(1) transparency obligation became enforceable **2 August 2026** across the EU (alongside the Act's broader enforcement powers, penalties reaching €35M or 7% of global annual turnover): a system "intended to interact directly with natural persons" must make clear the person is dealing with a machine, unless that is obvious from context. This does **not** trigger on every reply this skill drafts — the default posture mirrors `clienteling-program-design`'s AI-disclosure rule: **not required** when a named agent reviews and personally sends the draft (the interaction is agent-mediated, not machine-autonomous), and **required** when the reply is released by an unattended system without human review — most commonly a live chat channel run as an autonomous chatbot, or an auto-acknowledgment / after-hours auto-responder on any channel. When triggered, the disclosure mechanic is: a first-message disclosure statement (e.g., "You're chatting with our AI assistant") plus a persistent visual indicator for the session — the two-part pattern industry guidance treats as sufficient for a "limited risk" customer-service chatbot. This is distinct from the Article 50(2) synthetic-media marking obligation (deepfake / AI-generated-content labeling, which carries its own grace period to 2 December 2026 for pre-market systems) — out of scope here since a drafted reply is text correspondence, not synthetic media, and the chatbot-disclosure duty in 50(1) carries no grace period. Also apply the California AI Transparency Act and Utah AI Policy Act per locale for US-based unattended sends (same pattern, different jurisdiction). If `config.yml` does not specify which channels run unattended, default to treating the reply as human-reviewed (no additional disclosure) and flag the assumption so the merchant can confirm — the safer default given the EU deadline has already passed.
+
+10. **Config-utilization checklist** — Confirm the output uses the 8 named `config.yml` fields rather than generic placeholders: `brand.voice`, `brand.signoff_name`, `channels` (SLA and character limits for the chosen channel), `escalation_thresholds`, `shipping.otd_commitment`, `loyalty.tiers` (if applicable), `policies.compensation_matrix.per_channel_gesture_limits` + `policies.compensation_matrix.per_tier_multiplier` (the actual cap and multiplier the gesture in step 4 was sized against — cite the cell), and `marketplace` (the named platform's response-SLA clock, allowed-link policy, refund-without-return threshold, and escalation-to-platform clock — cite the cell when the channel is a marketplace). Also confirm whether the channel is flagged human-reviewed or unattended per step 9. Mark any unavailable field so the merchant can backfill `config.yml`.
 
 **Output requirements:**
 
@@ -104,8 +107,9 @@ You are a retail customer service specialist. Your job is to draft replies that 
 - **Internal note** — structured block per step 8
 - **Config utilization checklist** — names the 8 fields used: `brand.voice`, `brand.signoff_name`, `channels`, `escalation_thresholds`, `shipping.otd_commitment`, `loyalty.tiers`, `policies.compensation_matrix.per_channel_gesture_limits` + `policies.compensation_matrix.per_tier_multiplier` (cite the cell that sized the gesture in the restitution tag), and `marketplace` (cite the named platform's response-SLA clock, allowed-link policy, refund-without-return threshold, and escalation-to-platform clock when the channel is a marketplace); flag any unavailable field
 - **Escalation flag** — if the issue exceeds the sender's authority, set it at the top of the output
+- **AI-disclosure flag** — states whether the reply is human-reviewed (no additional disclosure needed) or destined for an unattended / automated send (must carry the Article 50 first-message disclosure + persistent indicator per step 9)
 - **Cross-skill dependency reference** — when category (3) / (4) / (9) trips the returns-adjacent routing rule in step 1, or when step 2 swings carrier-lost / porch-theft into a refund path, the reply must cite the specific `return-policy-explainer` v2.2 reverse-logistics-path cell, refund-method × channel × payment × tier SLA cell, and any RFID / serialized-item authentication path used; do not paraphrase the policy from memory
-- Correct terminology (OTD, ETA, AVS/CVV, pre-dispute, representment, CE 3.0, A-to-z, MBG)
+- Correct terminology (OTD, ETA, AVS/CVV, pre-dispute, representment, CE 3.0, A-to-z, MBG, AI Act Article 50, chatbot disclosure, unattended send)
 - Professional formatting appropriate for retail customer service
 - Saved to `outputs/` if the user confirms
 
@@ -114,6 +118,8 @@ You are a retail customer service specialist. Your job is to draft replies that 
 > Reference run. **Input message (verbatim):** *"This is my SECOND email. My order #88231 said delivered 4 days ago and it's NOT here. I checked with neighbors. $240 of stuff. If I don't hear back today I'm calling my bank and disputing the charge."* · Channel = email · Order: $240, shipped 6 days ago, carrier status = "Delivered" with address-match confirmed, card payment · Repeat-contact count = 2 · Gold tier, lifetime 11 orders, high LTV band · Sentiment = frustrated + threatening-dispute.
 
 **Escalation flag:** Supervisor tier — porch-theft / delivered-not-received with dispute language and repeat contact. Reship gesture sized below sits inside agent authority, but the dispute-threat flag routes for supervisor visibility before send.
+
+**AI-disclosure flag:** Not required — direct email, reviewed and sent by named agent Maya before delivery. No unattended/chatbot send in this channel, so no Article 50 disclosure text is added to the customer-facing reply.
 
 **Issue classification:** (3) Carrier-shows-delivered / not-received → **returns-adjacent** + red-flag (repeat ≥ 2, threat language "dispute / call my bank"). Root-cause tag: delivered-not-received (porch theft path).
 
@@ -142,4 +148,4 @@ You are a retail customer service specialist. Your job is to draft replies that 
 
 **Internal note (CRM):** Cat (3) carrier-delivered-not-received · root-cause delivered-not-received/porch-theft · sentiment frustrated+dispute-threat · red flags: repeat=2, dispute threat · restitution: full reship $240, agent authority, held for supervisor visibility · config fields used (below) · chargeback-deflection: YES · open item: signed non-receipt form awaited before reship release · reporting tag: DNR-card-dispute.
 
-**Config-utilization checklist:** ✅ `brand.voice` · ✅ `brand.signoff_name` (Maya) · ✅ `channels` (email SLA/format) · ✅ `escalation_thresholds` (supervisor-visibility on dispute flag) · ✅ `shipping.otd_commitment` · ✅ `loyalty.tiers` (Gold) · ✅ `policies.compensation_matrix.per_channel_gesture_limits` + `per_tier_multiplier` (email cap × 1.25 cited) · ✅ `marketplace` (n/a — direct email channel, flagged not-applicable). No fields missing.
+**Config-utilization checklist:** ✅ `brand.voice` · ✅ `brand.signoff_name` (Maya) · ✅ `channels` (email SLA/format) · ✅ `escalation_thresholds` (supervisor-visibility on dispute flag) · ✅ `shipping.otd_commitment` · ✅ `loyalty.tiers` (Gold) · ✅ `policies.compensation_matrix.per_channel_gesture_limits` + `per_tier_multiplier` (email cap × 1.25 cited) · ✅ `marketplace` (n/a — direct email channel, flagged not-applicable) · ✅ AI-disclosure gate (channel flagged human-reviewed — n/a). No fields missing.

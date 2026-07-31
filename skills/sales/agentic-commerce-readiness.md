@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~30 min/audit"
-version: 2.6
-last_eval_score: 8.2
+version: 2.7
+last_eval_score: 8.4
 ---
 
 # 🤖 Agentic Commerce Readiness
@@ -111,4 +111,123 @@ You are a retail AI readiness consultant covering storefront, catalog, structure
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+**Input (abbreviated):** *Trailforge Supply Co.* — mid-market outdoor-gear retailer, Shopify Plus, 3,180 active SKUs (footwear, apparel, camp & cook, hydration, navigation & safety, packs, climbing hardware). Storefront URLs: homepage, `/collections/camp-cook`, 2 product pages (`TF-STV-220` variant-parent stove, `TF-BSP-114` regulated bear spray), cart, checkout entry. Robots.txt allows `GPTBot`, `OAI-SearchBot`, `ClaudeBot`, `anthropic-ai`, `Google-Extended`; silent on `PerplexityBot`. Config present: `target_agent_platforms` = [Shopify Agent Commerce, Google (UCP/AI Mode/Universal Cart/Gemini Spark), OpenAI (ChatGPT shopping/Operator), Anthropic Computer Use, Perplexity Shop] in stated priority order; `target_protocol_priorities` = [Shopify Agent Commerce, UCP, AP2, Visa Trusted Agent Protocol, Mastercard Agent Pay, Stripe Link for AI agents, Amex ACE, MPP]; `assumed_autonomous_spend_threshold` = $500/order; `voice_owner` = "M. Alvarez, Director of Digital Merchandising"; `rate_limits` = 90 req/min default ceiling for verified agents; `parity_rules` = Backcountry.com marketplace, ±3% price/promo tolerance; `regulated_categories` = [bear_spray, fixed_blade_knives, fuel_canisters]; `psp` = Shopify Payments (Stripe-powered). Config **absent**: `agent_purchase_protection_coverage_categories` (flagged — see §10).
+
+---
+
+**1. Scored readiness report — Overall: 72 / 100**
+
+| Tier | Subscore | Weight | Contribution |
+|---|---|---|---|
+| Discovery | 84 | 20% | 16.8 |
+| Comparison | 78 | 25% | 19.5 |
+| Checkout | 61 | 35% | 21.4 |
+| Post-purchase | 70 | 20% | 14.0 |
+| **Composite** | | 100% | **71.6 → 72** |
+
+Weighting rationale: Checkout carries the heaviest weight (35%) because it is where agent-originated revenue and fraud/dispute exposure concentrate; Discovery and Post-purchase are weighted equally (20% each) as necessary-but-lower-stakes tiers; Comparison sits at 25%.
+
+Per-agent-platform subscore (reported separately per Output requirements — not re-summed into the composite above, to avoid double-counting the same underlying tier work):
+
+| Platform (priority order) | Subscore |
+|---|---|
+| Shopify Agent Commerce | 88 |
+| Google (UCP / AI Mode / Universal Cart / Gemini Spark) | 74 |
+| OpenAI (ChatGPT shopping / Operator) | 69 |
+| Anthropic Computer Use | 65 |
+| Perplexity Shop | 58 |
+
+Shopify leads because it's the native platform (commerce_agent bit live, Agentic Storefronts admin reviewed). Perplexity Shop trails because `PerplexityBot` has no explicit robots directive (§4) and no MAAI-equivalent attestation is configured for that surface.
+
+**2. 2026-protocol compliance table (excerpt, full table generated)**
+
+| Platform | Protocol | Status | Remediation owner |
+|---|---|---|---|
+| Shopify Agent Commerce | commerce_agent capability bit + Agentic Storefronts direct-checkout posture | PASS (reviewed, explicit per-channel on/off decided) | — |
+| Shopify / all | Catalog default-on multi-surface syndication (Spring '26) | WARN — auto-enrolled on ChatGPT + Copilot, not yet verified attribute-for-attribute against on-page source | PIM |
+| All PSP-routed | Delegated-purchase token / Shared Payment Token | PASS — Shopify Pay Agent + Stripe SPT live | — |
+| Card-network | Mastercard Verifiable Intent | PILOT — issuer handshake not yet live for this acquirer | PSP |
+| Card-network | Visa Trusted Agent Protocol (Web Bot Auth) | WARN — Web Bot Auth signature verification on at edge; Trusted Agent enrollment with acquirer not confirmed | Eng |
+| Card-network | Amex ACE Developer Kit + Agent Purchase Protection | FAIL — not enrolled; `agent_purchase_protection_coverage_categories` unset | Legal / PSP |
+| Cross-network | AP2 Payment Mandate (incl. Human Not Present) | PILOT — Intent/Cart Mandate accepted; Human Not Present not yet allowlisted | Eng |
+| Google | UCP Catalog / Loyalty / Post-Purchase capability | WARN — Catalog live at 4.1 min p95 (see §6); Loyalty and Post-Purchase not enrolled | Eng |
+| Google | Universal Cart (Google Pay from Universal Cart) | PILOT — transfer-to-site path only, no launch-retailer parity yet | Merch |
+| Stripe | Stripe Link for AI agents | PASS — treated as tier-1 attestation | — |
+| — | Machine Payments Protocol (MPP) | N/A — no paid API surface exposed | — |
+
+**3. Consumer-control readiness line**
+
+| Check | Status | Owner |
+|---|---|---|
+| Spending-cap enforcement (Intent Mandate ceiling as hard stop) | WARN — enforced as advisory, not hard stop | Eng |
+| Real-time revocation-honoring (post-Cart-Mandate, pre-settlement) | FAIL — no abort path between cart-build and settlement | Eng |
+| Agent-placed-order cancellation (no portal hop) | PASS — UCP Post-Purchase not yet enrolled, but native order-cancel API already meets the same-friction bar | — |
+| Assumed-autonomous-spend-threshold vs. consumer benchmark | WARN — merchant `assumed_autonomous_spend_threshold` = **$500**; outdoor/sporting-goods consumer delegated-spend comfort benchmark = **$275**; merchant threshold exceeds benchmark by **$225**, meaning step-up friction trips later than shoppers expect | Merch / Digital |
+
+**4. Robots / rate-limit matrix (excerpt)**
+
+| Agent user-agent | robots.txt directive | Rate limit (req/min) | Auth requirement | Status |
+|---|---|---|---|---|
+| `GPTBot` | Allow | 90 | None (unauthenticated) | WARN (60–120 band) |
+| `OAI-SearchBot` | Allow | 90 | None | WARN |
+| `ClaudeBot` / `anthropic-ai` | Allow | 90 | None | WARN |
+| `Google-Extended` / GoogleAgent (UCP) | Allow | 150 (verified via MAAI-equivalent) | MAAI-equivalent attestation | PASS |
+| `PerplexityBot-Shop` | **Not specified** | Default crawler ceiling (30) | None | FAIL — flagged in backlog |
+| Shopify `commerce_agent` | Allow (native) | 300 | Platform-native attestation | PASS |
+| Unverified / disguised scraper class | Rate-limited, not 0-rated | 20 | None | By design |
+
+**5. Structured-data completeness**
+
+Formula: 12 required fields × weight 2 + 6 recommended fields × weight 1 = **30 max points per SKU**.
+
+- `TF-STV-220` (Alpine 2-Burner Camp Stove): 11/12 required present (missing `offers.priceValidUntil`) → 22 pts; 5/6 recommended present (missing `review`) → 5 pts. **27/30 = 90.0%** — passes the 70% remediation floor, sits in the 90–100% band.
+- `TF-BSP-114` (Guardian 9oz Bear Spray, regulated): 9/12 required present (missing `gtin13`/`mpn`, `offers.priceValidUntil`, `itemCondition`) → 18 pts; 0/6 recommended present → 0 pts. **18/30 = 60.0%** — below the 70% floor, **flagged for remediation**, and doubly flagged as a regulated SKU missing GTIN/MPN (blocks Shopping-feed eligibility, not just agent readiness).
+
+SKU count by band (3,180 SKUs audited from the live feed):
+
+| Band | SKU count | % of catalog |
+|---|---|---|
+| 90–100% | 1,988 | 62.5% |
+| 70–89% | 954 | 30.0% |
+| < 70% (flagged) | 238 | 7.5% |
+
+**6. Real-time inventory / price API scorecard**
+
+| Endpoint | p95 latency | Threshold band | Status |
+|---|---|---|---|
+| Inventory (availability) | 4.1 min | Pass < 2 min, Warn 2–15 min, Fail > 15 min | **WARN** |
+| Price | 0.63 min (38 sec) | Pass < 1 min, Warn 1–5 min, Fail > 5 min | **PASS** |
+| Agent rate-limit headroom (verified) | 90 req/min | Pass ≥ 120, Warn 60–120, Fail < 60 | **WARN** |
+
+Promotion/coupon logic exposure: **No**. Stock-reservation / hold-order: **Yes**, 15-minute hold. Flag: camp-stove-fuel and hydration-filter categories run flash promotions weekly — the 4.1 min inventory p95 puts those categories at meaningful risk of an agent quoting stale stock.
+
+**7. Prioritized fix-it backlog (top 5)**
+
+| # | Spec | Owner | Rollback |
+|---|---|---|---|
+| 1 | Backfill `offers.priceValidUntil` across the 1,192 SKUs currently missing it (feed-pipeline default: +30 days from last price-sync) | PIM | Revert to prior feed export; no live-site risk, pipeline-only change |
+| 2 | Backfill `gtin13`/`mpn` + `itemCondition` for the 238 SKUs in the <70% band, prioritizing the 3 regulated categories first | PIM / Legal | Field-level; revert via feed version pin, no SEO impact |
+| 3 | Raise verified-agent rate-limit ceiling from 90 → 150 req/min at the edge (WAF) to clear the WARN band and support UCP Catalog capability retrieval | Eng | Feature-flagged; roll back the WAF rule if unauthenticated-scraper load spikes |
+| 4 | Convert spending-cap and real-time-revocation checks from advisory to hard-stop in the checkout stack (honor revocation between Cart Mandate and Payment Mandate) | Eng | Ship behind a kill-switch; rollback restores advisory-only behavior, monitor abandonment delta for 2 weeks |
+| 5 | Enroll Amex ACE Developer Kit and set `agent_purchase_protection_coverage_categories` in `config.yml` (exclude bear_spray, fixed_blade_knives, fuel_canisters per regulated-category rule) | Legal / PSP | Enrollment is additive; no rollback risk beyond re-toggling ACE participation |
+
+Full backlog (bucketed, not detailed): `PerplexityBot-Shop` robots/rate-limit gap (Eng, low effort) · Mastercard Verifiable Intent issuer handshake (PSP, blocked on acquirer timeline) · UCP Loyalty + Post-Purchase enrollment (Eng, medium effort) · Universal Cart launch-retailer parity path (Merch, low priority — not a named launch retailer) · llms.txt refresh cadence automation (Eng, low effort).
+
+**8. Channel-parity and regulated-category flags**
+
+- Channel parity (Backcountry.com, ±3% tolerance): of 1,140 marketplace-listed SKUs, **41 SKUs (3.6%)** diverge beyond tolerance — mostly stale seasonal-promo pricing on the storefront that Backcountry.com already cycled off.
+- Regulated categories (`bear_spray`, `fixed_blade_knives`, `fuel_canisters`, 96 SKUs total): only **59 of 96 (61.5%)** carry the full agent-readable eligibility attribute set (age-gate, state-restriction, hazmat-shipping-class). The remaining 37 SKUs risk an agent surfacing an ineligible purchase path to a shopper in a restricted state (e.g., bear spray shipping restrictions in NY/MA) before checkout blocks it. **Flagged as a top-tier compliance gap**, escalated above its raw impact×effort score.
+
+**9. AEO / GEO citation scorecard**
+
+- `llms.txt`: present at site root, last refreshed 14 days ago (catalog changes weekly — refresh cadence flagged as slightly stale).
+- AI-crawler allowlist: `GPTBot`, `OAI-SearchBot`, `ClaudeBot`, `anthropic-ai`, `Google-Extended` allowed on product/category/policy; `PerplexityBot` unset (same gap as §4); internal search and price-history pages correctly denied.
+- FAQPage / HowTo / Product schema coverage: 1,720 of 3,180 SKUs (54.1%) carry ≥ 1 FAQPage block; 18 of 24 category/use-case pages (75.0%) carry a HowTo block.
+- Answer-first content: category pages lead with a direct answer; 40% of product pages still bury the answer below a buying-guide intro — flagged.
+- Entity salience: "Trailforge Supply Co." consistent across site, Wikidata absent (no entry) — flagged as a minor citation-disambiguation risk against a same-named outdoor brand.
+- Baseline citation share (3-assistant panel, branded / unbranded query sets): ChatGPT 22% / 6%; Gemini + AI Overviews 31% / 9%; Perplexity 14% / 4%.
+- Anti-hallucination guardrail: returns, shipping, warranty policy pages crawlable and structurally distinct — PASS; the age-gate/jurisdiction policy page is client-side rendered and not reliably crawlable — **WARN**, cross-linked to `return-fraud-image-shield` and `agentic-checkout-fraud-shield` risk.
+
+**10. Config-utilization checklist**
+
+Applied: `target_agent_platforms` (5-platform priority order drove the per-platform subscore ranking in §1), `target_protocol_priorities` (drove remediation-owner sequencing in §2 and backlog ranking in §7), `assumed_autonomous_spend_threshold` ($500, flagged against the $275 category benchmark in §3), `voice_owner` (M. Alvarez — named as the reconciliation point for the Agentic Storefronts / Mastercard Agent Suite / UCP-ad-campaign brand-voice checks, none of which surfaced a conflict this cycle), `rate_limits` (90 req/min default bound directly into §4 and §6), `parity_rules` (Backcountry.com ±3% bound into §8), `regulated_categories` (bear_spray / fixed_blade_knives / fuel_canisters bound into §5 and §8), `psp` (Shopify Payments / Stripe bound into §2's SPT and Stripe Link rows). **Flagged as absent:** `agent_purchase_protection_coverage_categories` — not set in `config.yml`; the audit defaulted to the documented fallback (exclude the three `regulated_categories` plus any SKU failing the documented-delivery evidence floor) so §2's ACE row could still be scored, and backlog item #5 asks Legal/PSP to set the field explicitly rather than continue relying on the default.
