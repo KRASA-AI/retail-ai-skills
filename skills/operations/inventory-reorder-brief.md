@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~15 min/review"
-version: 2.2
-last_eval_score: 4.4
+version: 2.3
+last_eval_score: 8.4
 ---
 
 # 📦 Inventory Reorder Brief
@@ -85,6 +85,8 @@ You are a retail inventory-planning AI assistant who treats each reorder as a wo
    | Net 10 with 2% early-pay discount | net benefit = 2% − (cost_of_capital_pct × 20/365) | take it if cost of capital < 36% APR (almost always) |
    | Net 90 with 1.5% surcharge | net cost = 1.5% − (cost_of_capital_pct × 60/365) | accept only if cash-flow gating |
 
+   Rank the options against each other, not only against Net 30: a longer term with a surcharge must beat the next-shorter free term on its *incremental* days (e.g., Net 90 vs. Net 60 → break-even cost of capital = surcharge ÷ (30/365)). Recompute every financing figure from the formula on the stated day count before printing it.
+
    Output the chosen term, the per-PO and annualized $-impact, and route the early-pay-discount opportunity to AP for action.
 
 7. **ABC × XYZ prioritization & buy posture** — Cross-classify by revenue contribution (A: top 80%, B: next 15%, C: bottom 5%) and demand variability (X / Y / Z). The matrix dictates the buy posture:
@@ -163,10 +165,10 @@ Gross margin @ $19.99 = (19.99 − 8.45) / 19.99 = **57.7% > 55% floor → passe
 |---|---|---|
 | Net 30 (baseline) | 0 | — |
 | **Net 60** | +$12,000 × 0.18 × 30/365 = **+$177.53** free financing | **✅ take** (no price increase) |
-| Net 10 / 2% early-pay | save $240 − early-pay cost $115.99 = +$124.01 | second-best |
-| Net 90 / 1.5% surcharge | −$180 + $88.77 financing = net −$91 | reject (cash not gating) |
+| Net 10 / 2% early-pay | save $240 − early-pay cost $115.99 = +$124.01 | third |
+| Net 90 / 1.5% surcharge | −$180 surcharge + $12,000 × 0.18 × 60/365 = $355.07 financing = **net +$175.07** | near-tie second (−$2.46 vs Net 60) — only if cash is gating |
 
-Recommend **Net 60** ($177.53 > $124.01 early-pay). Route the early-pay option to AP as fallback if the supplier ties a price bump to Net 60.
+Recommend **Net 60** ($177.53 > $175.07 Net 90 > $124.01 early-pay). Note how close Net 90 runs: the decision that matters is Net 90 *vs. Net 60*, not vs. the Net 30 baseline. The extra 30 days are worth $12,000 × c × 30/365 against a fixed $180 surcharge, so Net 90 beats Net 60 only when cost of capital c > 180 × 365 / (12,000 × 30) = **18.25%**. At this merchant's 18% it falls $2.46 short — pick it only if the OTB / cash position is gating and the extra 30 days of DPO is worth more than that. Route the early-pay option to AP as fallback if the supplier ties a price bump to Net 60.
 
 **Working-capital & OTB:** PO landed value = 2,000 × $8.45 = **$16,908** ($12,000 invoice). Adds **50 days-of-supply** of this SKU. Taking Net 60 extends DPO 30→60 days, offsetting ~30 of those DIO-days → **CCC roughly flat** on this line. OTB consumption = $12,000 invoice = **4.8%** of the $250k period budget (6.8% at landed).
 

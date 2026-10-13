@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~35 min/review"
-version: 1.2
-last_eval_score: 8.8
+version: 1.3
+last_eval_score: 8.9
 ---
 
 # 🛡️ Agentic Checkout Fraud Shield
@@ -48,7 +48,7 @@ You are a retail fraud and payments operations assistant. Your job is to reduce 
 3. **Rule tuning for agentic behavior** — Identify signals that are noisy for agents but valid for humans (short session, no mouse movement, instant form fill, headless user-agent) and propose replacement signals: delegated-purchase tokens (Stripe Shared Payment Token / SPT-on-BNPL for Affirm / Klarna / Adyen Agent Token / Shopify Pay Agent / Stripe Link for AI agents / Visa MAAI / Mastercard Agent Pay / Amex Tokenized Agent Commerce), merchant-attested agent IDs with signature-chain verification, Web Bot Auth signature-verification result at the edge (Cloudflare AI Crawl Control or equivalent), Visa Trusted Agent Protocol attestation outcome, Mastercard Verifiable Intent record (cryptographic pre-authorization scope: merchant, ceiling, time-window, item-class), passkey / 3DS2 device binding on the consumer's wallet, ship-to stability, BIN-level dispute history, and network-token cryptogram presence. For BNPL-on-SPT orders, layer in BNPL-specific signals (per-provider provider-decisioning code, agent-initiated installment first-payment success, BNPL-velocity per shopper) so an Affirm-or-Klarna agent flow does not get the typed-card guest-checkout rule set. For MPP-arriving orders (microtransaction or recurring metered), confirm the chargeback evidence trail still captures delivery confirmation, ship-to, and prior-undisputed-DPAN linkage even though the rail is machine-to-machine. Build the rule table as: signal → current threshold → proposed threshold → expected impact (approved-loss, false-decline, manual-review hours).
 
 4. **Friendly-fraud defense** — For each high-volume dispute reason code, draft a representment template that maps required evidence (delivery confirmation with geolocation, CVV/AVS match, network-token cryptogram, prior order history with the same DPAN, IP-to-ship-to distance, loyalty login, customer communication log, BOPIS-counter video / signature, device-fingerprint match against prior undisputed orders) to the card-scheme's accepted evidence fields. Maintain a per-scheme template shelf:
-   - **Visa** → CE 3.0 fields (login + IP + device + matching ship-to across 2 prior undisputed orders within 120 days) and RR-10.4 / RR-13.1 / RR-13.2 paths
+   - **Visa** → CE 3.0 fields (2 prior undisputed orders on the same card dated 120–365 days before the disputed transaction, matching on at least two of IP address, device ID / fingerprint, shipping address, and account login — at least one of the two must be IP address or device ID) and RR-10.4 / RR-13.1 / RR-13.2 paths
    - **Mastercard** → First Party Trust (FPT) fields and the Reason Code 4837 / 4863 path
    - **Amex** → INV / FR4 path with CIBP requirements
    - **Discover** → UA02 / RG path
@@ -80,7 +80,74 @@ You are a retail fraud and payments operations assistant. Your job is to reduce 
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+> Reference run, fictional merchant. **Cedar Row Home** — home goods, DTC web + app, AOV $142, gross margin 41%. Window: last 30 days. **Config (illustrative values):** `payments.psp` = Adyen · `payments.card_scheme_mix` = Visa 58% / Mastercard 31% / Amex 9% / Discover 2% · `payments.network_token_coverage` = 64% · `risk_appetite` = target chargeback rate 0.50%, target false-decline rate 2.0%, max auto-approve AOV $400, monitoring-program assessment estimate $50 per excess dispute · `escalation_thresholds` = auto-approve score < 30 and ≤ $400 · step-up 30–54 · manual review 55–74 or any order > $1,200 · decline ≥ 75 · `agentic_traffic.allowlist` = 3 attested agent IDs · `device_fingerprint.vendor` = in-house · `chargeback_policy.evidence_paths` = Visa and Mastercard paths defined, Amex and Discover **missing**.
+
+**Executive summary**
+- Chargeback rate is **0.65%** (1,170 disputes / 180,000 transactions) against a 0.50% target — **270 disputes/month over**. At the configured $50 assessment estimate, monitoring-program exposure is **$13,500/month** if the acquirer enrolls the account.
+- Fully loaded cost is **$1.23 per $1 disputed** ($241,230 loaded vs. $196,560 disputed value). After 168 representment wins, net monthly loss is **$213,006**.
+- The bigger leak is not fraud — it is **false declines on agent checkouts**: 1,800 of 15,000 agent attempts declined (12.0%); review of a sample puts ~65% of them as legitimate → **1,170 lost orders, $166,140 GMV, $68,117 margin per month**.
+- The protocol-quality tier ladder cuts agent declines to **772 (5.1%)** and recovers ~925 orders → **+$53,854 margin**, less ~$4,388 net added fraud exposure = **+$49,466/month**.
+- A Visa CE 3.0 evidence upgrade on friendly-fraud disputes adds ~77 wins → **+$12,936/month**; the returns-shield bridge prevents ~49 disputes → **+$10,103/month** avoided loaded cost.
+- **Total ≈ $72,505/month.** Honest limit: these moves take the dispute rate to ~0.62%, **still 221 disputes over target** — closing the rest needs pre-dispute resolution alerts (Visa RDR / Mastercard alert-style programs), scoped as the next workstream.
+
+**1 · Baseline the loss**
+
+| Reason (Visa / MC path) | Disputes | Share |
+|---|---|---|
+| Fraud — card-absent (10.4 / 4837) | 410 | 35.0% |
+| Friendly / not recognized (10.4 first-party / 4837 FPT) | 380 | 32.5% |
+| Item not received (13.1 / 4853) | 230 | 19.7% |
+| Not as described (13.3 / 4853) | 120 | 10.3% |
+| Duplicate / processing (12.6 / 4834) | 30 | 2.6% |
+| **Total** | **1,170** | **100% (rounded)** |
+
+Loaded cost = $196,560 disputed ($168 avg) + $23,400 scheme/PSP fees ($20 × 1,170) + $12,870 non-recoverable shipping ($11 × 1,170) + $8,400 representment labor (700 fought × 0.4 h × $30) = **$241,230**.
+
+**2–3 · Tuned rule set** (score points on a 0–100 risk scale)
+
+| Signal | Current | Proposed | Expected impact | Mode |
+|---|---|---|---|---|
+| Session < 20 s / no pointer events | +25, all traffic | +0 for T1–T3 verified agents; +25 for humans and T4 | largest single driver of the 1,028 avoided agent declines | shadow 24 h |
+| Headless user-agent | hard decline | +0 if Web Bot Auth signature verifies at the edge; +30 if not | removes the blanket agent block | shadow 24 h |
+| Delegated token (Stripe SPT / Adyen Agent Token / Shopify Pay Agent) + 3DS2 frictionless | no credit | −20 | moves T1/T2 into auto-approve | shadow 24 h |
+| Network-token cryptogram present | −5 | −10 | rewards the 64% tokenized base | live (lowers risk only) |
+| New ship-to and order > $400 | +15 | +15 humans; +5 for T1 when Mastercard Verifiable Intent scope matches merchant + ceiling | keeps the high-AOV guard without penalizing scoped agents | shadow 24 h |
+| Account on `return-fraud-image-shield` repeat-offender list | not used | route to manual review at purchase | ~49 disputes/month prevented | shadow 24 h |
+| Machine Payments Protocol spend per shopper per day | no cap | $250/day ceiling, breach → step-up | caps runaway agent loops | live |
+
+**Agent tier ladder applied to 15,000 monthly agent attempts**
+
+| Tier | Attempts | Projected decline rate | Declines |
+|---|---|---|---|
+| T1 (Stripe Link agent wallet / SPT + Verifiable Intent + passkey + 3DS2 + Web Bot Auth pass) | 3,300 | 1.0% | 33 |
+| T2 (delegated token + passkey + 3DS2) | 6,150 | 2.5% | 154 |
+| T3 (attested agent ID + 3DS2, no token) | 3,750 | 6.0% | 225 |
+| T4 (declared, unattested) | 1,800 | 20.0% | 360 |
+| **Total** | **15,000** | **5.1%** | **772** |
+
+Declines avoided = 1,800 − 772 = 1,028. Assume 90% legitimate → 925 orders × $142 = $131,350 GMV × 41% = **$53,854 margin**. The other ~103 are assumed bad: $14,626 exposure, ~70% liability-shifted on 3DS2-authenticated T1/T2 → **$4,388 net**. The 90% / 70% assumptions are the two numbers to validate in the shadow window.
+
+**4 · Representment shelf and evidence-coverage gaps**
+
+| Scheme · path | Required evidence | Cedar Row coverage | Gap → backlog |
+|---|---|---|---|
+| Visa · CE 3.0 (10.4) | 2 prior undisputed orders 120–365 days old on the same card, matching ≥ 2 of IP / device ID / ship-to / account login, at least one of them IP or device ID | IP + ship-to captured; device ID not retained past 90 days | extend device-ID retention to 400 days |
+| Visa · 13.1 / 13.3 | delivery scan with address match; product description + photos at sale | both captured | — |
+| Mastercard · FPT (4837) / 4853 | prior-relationship and device evidence per First Party Trust fields | captured | — |
+| Amex · FR4 / INV | CIBP-required fields | **no path in `chargeback_policy.evidence_paths`** | define path before fighting Amex |
+| Discover · UA02 / RG | proof of authorization / delivery | **no path defined** | define path |
+
+CE 3.0 lift: 58% Visa share × 380 friendly disputes ≈ 220 eligible; win rate 20% → 55% = **+77 wins × $168 = $12,936/month**.
+
+**5 · Returns-side bridge** — 14% of INR + SNAD disputes (≈ 49/month of 350) come from accounts on the `return-fraud-image-shield` repeat-offender list. Those accounts route to manual review at purchase; the four-signal breakdown is written into the dispute evidence folder, so a later representment does not start from zero.
+
+**6 · Decisioning rubric** — tiers exactly as `escalation_thresholds` (auto < 30 and ≤ $400 · step-up 30–54 · manual 55–74 or > $1,200 · decline ≥ 75). Protocol modifiers applied to the combined score: T1 −15 · T2 −10 · T3 0 · T4 +10. A T1 order at raw score 40 clears to 25 → auto-approve; the same 40 on a typed-card guest checkout steps up.
+
+**7 · KPIs** (weekly): chargeback rate per scheme and total · false-decline rate (target 2.0%) · representment win rate per reason × scheme · manual-review hours · agent approval rate by tier · network-token coverage · passkey adoption. **Rollback:** any KPI worse than baseline two weeks running reverts the rule that moved it.
+
+**8 · Write-back** — every scoring rule goes into the Adyen risk profile in shadow (log-only) mode for 24 h; the fraud lead approves each flip by name; 72-hour rollback window. The MPP ceiling and network-token credit go live immediately because they can only tighten or lower risk on already-authenticated traffic.
+
+**9 · Config-utilization checklist** — ✅ `payments.psp` (Adyen) · ✅ `payments.card_scheme_mix` (Visa 58% sized the CE 3.0 lift) · ✅ `payments.network_token_coverage` (64%) · ✅ `risk_appetite` (0.50% / 2.0% / $400 / $50) · ✅ `escalation_thresholds` · ⚠️ `chargeback_policy.evidence_paths` (Amex and Discover missing — backfill) · ✅ `agentic_traffic.allowlist` (3 attested IDs) · ✅ `device_fingerprint.vendor` (in-house; retention gap flagged).
 
 ## Notes
 
